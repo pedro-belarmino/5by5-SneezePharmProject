@@ -14,20 +14,57 @@ namespace Application.Classes.Production
 
         public List<Ingredient> Ingredients = new List<Ingredient>();
 
-        public string Id { get; set; }
-        public string Nome { get; set; }
-        public DateOnly UltimaCompra { get; set; }
-        public DateOnly DataCadastro { get; set; }
-        public char situacao { get; set; }
+        public string? Id { get; private set; }
+        public string? Nome { get; private set; }
+        public DateOnly UltimaCompra { get; private set; }
+        public DateOnly DataCadastro { get; private set; }
+        public char situacao { get; private set; }
 
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Ingredient.data";
         string fullPath = Path.Combine(diretorio, file);
 
+        public void Verificador()
+        {
+            try
+            {
+                if (!Directory.Exists(diretorio))
+                {
+                    Directory.CreateDirectory(diretorio);
+                }
+
+                if (!File.Exists(fullPath))
+                {
+                    using (StreamWriter wr = new StreamWriter(fullPath)) { }
+                    ;
+                }
+
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        public void PopularLista()
+        {
+            StreamReader sr = new StreamReader(fullPath);
+
+            string line;
+            while ((line = sr.ReadLine()!) != null)
+            {
+                var dado = line.Split(',');
+                livros.Add(new Livro(dado[0], dado[1], dado[2], dado[3]));
+            }
+            sr.Close();
+        }
+
         public Ingredient()
         {
             objeto.Verificador(diretorio, fullPath);
             Console.WriteLine("Arquivo e diretório criados com sucesso.");
+            Verificador();
         }
 
         public Ingredient(string id, string nome, DateOnly ultimaCompra, DateOnly dataCadastro, char situacao)
@@ -66,6 +103,7 @@ namespace Application.Classes.Production
             Ingredient novoIngredient = new(Id, Nome, Data, DataCadastro, situacao);
 
             Ingredients.Add(novoIngredient);
+            SaveFile();
         }
 
         public Ingredient? FindIngredient()
@@ -96,6 +134,7 @@ namespace Application.Classes.Production
 
             } while ((UpdatedIngredient.situacao != 'A') && (UpdatedIngredient.situacao != 'I'));
 
+            SaveFile();
             return UpdatedIngredient;
         }
 
@@ -117,7 +156,39 @@ namespace Application.Classes.Production
 
         public void IngredientMenu()
         {
+            int opcao;
+            do
+            {
+                Console.Write("Escolha uma opção: ");
+                Console.Write("1 - Criar novo Ingrediente: ");
+                Console.Write("2 - Encontrar algum Ingrediente: ");
+                Console.Write("3 - Alterar algum ingrediente existente: ");
+                Console.Write("4 - Imprimir todos os ingredientes: ");
+                Console.Write("5 - Sair");
+                opcao = int.Parse(Console.ReadLine()!);
 
+                switch (opcao)
+                {
+                    case 1:
+                        CreateIngredient();
+                        break;
+                    case 2:
+                        FindIngredient();
+                        break;
+                    case 3:
+                        UpdateIngredient();
+                        break;
+                    case 4:
+                        PrintIngredient();
+                        break;
+                    case 5:
+                        SaveFile();
+                        return;
+                    default:
+                        Console.WriteLine("Informe uma opção válida.");
+                        break;
+                }
+            } while (true);
         }
     }
 }
