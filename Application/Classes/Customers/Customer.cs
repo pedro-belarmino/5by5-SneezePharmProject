@@ -19,21 +19,21 @@ namespace Application
 
 
         public Customer(string cpf, string nome, DateOnly dataNascimento, string telefone, DateOnly ultimaCompra, DateOnly dataCadastro, char situacao)
-            {
-                Cpf = cpf;
-                Nome = nome;
-                DataNascimento = dataNascimento;
-                Telefone = telefone;
-                UltimaCompra = ultimaCompra;
-                DataCadastro = dataCadastro;
-                Situacao = situacao;
-            }
-        
-
-        public bool ValidarCPF(string cpf) 
         {
-            
+            Cpf = cpf;
+            Nome = nome;
+            DataNascimento = dataNascimento;
+            Telefone = telefone;
+            UltimaCompra = ultimaCompra;
+            DataCadastro = dataCadastro;
+            Situacao = situacao;
         }
+
+
+        // public bool ValidarCPF(string cpf) 
+        // {
+
+        // }
 
 
 
