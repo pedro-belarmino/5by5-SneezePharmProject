@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -45,7 +46,7 @@ namespace Application.Utils.WritersAndReaders
         /////////////////////////////////////
         */
 
-        public void Verificador(string directoryPath, string fullPath)
+        public string Verificador(string directoryPath, string fullPath)
         {
             try
             {
@@ -58,13 +59,50 @@ namespace Application.Utils.WritersAndReaders
                 {
                     using (StreamWriter wr = new StreamWriter(fullPath)) { }
                 }
-
+                return fullPath;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.StackTrace);
                 Console.WriteLine(e.Message);
+                return "";
             }
         }
+
+
+
+        public List<string> LerArquivoEColocarNaLista(string diretorio, string nomeArquivo)
+        {
+            var caminho = Verificador(diretorio, nomeArquivo);
+            var linhas = new List<string>();
+
+            using (StreamReader sr = new StreamReader(caminho))
+            {
+                string linha;
+                while ((linha = sr.ReadLine()) != null)
+                {
+                    linhas.Add(linha);
+                }
+            }
+
+            return linhas;
+        }
+
+
+        public void LerListaEColocarNoArquivo(List<string> l, string diretorio, string nomeArquivo)
+        {
+            var caminho = Verificador(diretorio, nomeArquivo);
+            StreamWriter sw = new StreamWriter(caminho);
+
+            using (sw)
+            {
+                foreach (string c in l)
+                {
+                    sw.WriteLine(c);
+                    sw.Close();
+                }
+            }
+        }
+
     }
 }
