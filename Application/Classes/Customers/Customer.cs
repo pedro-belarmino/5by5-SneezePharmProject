@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Application
 {
-    public class Customers
+    public class Customer
     {
         public string Cpf { get; private set; }
         public string Nome { get; private set; }
@@ -18,7 +18,7 @@ namespace Application
         public char Situacao { get; private set; }
 
 
-        public Customers(string cpf, string nome, DateOnly dataNascimento, string telefone, DateOnly ultimaCompra, DateOnly dataCadastro, char situacao)
+        public Customer(string cpf, string nome, DateOnly dataNascimento, string telefone, DateOnly ultimaCompra, DateOnly dataCadastro, char situacao)
             {
                 Cpf = cpf;
                 Nome = nome;

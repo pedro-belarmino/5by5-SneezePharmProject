@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Application
 {
-    public class Sales
+    public class Sale
     {
         public int Id { get; private set; }
         public DateOnly DataVenda { get; private set; }
         public decimal ValorTotal { get; private set; }
         public Cliente cliente = new Cliente ();
         
-        public Sales(int i, DateOnly d, decimal v, Cliente c)
+        public Sale(int i, DateOnly d, decimal v, Cliente c)
         {
             this.Id = i;
             this.DataVenda = d;
