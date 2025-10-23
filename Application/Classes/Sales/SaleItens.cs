@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Application
 {
-    public class SalesItens
+    public class SaleItens
     {
         public int Id { get; private set; }
         public int Quantidade { get; private set; }
@@ -14,7 +14,7 @@ namespace Application
         public int TotalItem { get; private set; }
         public Medicine medicamento = new Medicine();
 
-        public SalesItens(int i, int q, decimal v, Medicine m)
+        public SaleItens(int i, int q, decimal v, Medicine m)
         {
             this.Id = i;
             this.Quantidade = q;

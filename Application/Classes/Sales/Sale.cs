@@ -4,24 +4,23 @@ using System.Linq;
 using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Classes;
 
 namespace Application
 {
-    public class Sales
+    public class Sale
     {
         public int Id { get; private set; }
         public DateOnly DataVenda { get; private set; }
         public decimal ValorTotal { get; private set; }
-        public Cliente cliente = new Cliente ();
+        public Customer cliente = new Customer();
         
-        public Sales(int i, DateOnly d, decimal v, Cliente c)
+        public Sale(int i, DateOnly d, decimal v, Customer c)
         {
             this.Id = i;
             this.DataVenda = d;
             this.ValorTotal = v;
-            this.Cliente.Cpf = c;
+            this.Customer.Cpf = c;
         }
-
-
     }
 }
