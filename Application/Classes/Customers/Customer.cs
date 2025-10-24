@@ -17,7 +17,6 @@ namespace Application
         public DateOnly DataCadastro { get; private set; }
         public char Situacao { get; private set; }
 
-
         public Customer(string cpf, string nome, DateOnly dataNascimento, string telefone, DateOnly ultimaCompra, DateOnly dataCadastro, char situacao)
         {
             Cpf = cpf;
@@ -29,6 +28,19 @@ namespace Application
             Situacao = situacao;
         }
 
+        public string AjustarLimite(string propriedade, int limite)
+        {
+            string propPreenchida = propriedade;
+
+            if (string.IsNullOrEmpty(propriedade))
+                Console.WriteLine("A entrada não pode ser vazia");
+            else if (propriedade.Length > limite)
+                Console.WriteLine($"Limite de caracteres atingido! Use até {limite} caracteres.");
+            else if (propriedade.Length < limite)
+                propPreenchida = propriedade.PadRight(limite);
+
+            return propPreenchida;
+        }
 
         // public bool ValidarCPF(string cpf) 
         // {
@@ -37,5 +49,19 @@ namespace Application
 
 
 
+        public override string ToString()
+        {
+            return $"CPF: {Cpf}" +
+                $"\nNome: {Nome}" +
+                $"\nData de Nascimento: {DataNascimento}" +
+                $"\nTelefone: {Telefone}" +
+                $"\nÚltima Compra: {UltimaCompra}" +
+                $"\nData de Cadastro: {DataCadastro}" +
+                $"\nSituação: {Situacao}";
+        }
     }
+
+
+
 }
+

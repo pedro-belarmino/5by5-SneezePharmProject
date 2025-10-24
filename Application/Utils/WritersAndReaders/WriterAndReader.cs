@@ -11,7 +11,7 @@ namespace Application.Utils.WritersAndReaders
     public class Writer_Reader
     {
         /*
-        Como usar: 
+        Como usar o verificador: 
         instancia um objeto 'objeto' no topo da classe:********
 
         Writer_Reader objeto = new Writer_Reader();
@@ -45,7 +45,6 @@ namespace Application.Utils.WritersAndReaders
         }
         /////////////////////////////////////
         */
-
         public string Verificador(string directoryPath, string fullPath)
         {
             try
