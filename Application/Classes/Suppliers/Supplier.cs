@@ -37,7 +37,7 @@ namespace Application
             return Suppliers.Exists(c => c.Cnpj == cnpj);
         }
 
-        private bool ValidarCnpj(string cnpj)
+        private static bool ValidarCnpj(string cnpj)
         {
             bool ehApenasNumero = cnpj.All(char.IsDigit);
             char[] letras = cnpj.ToCharArray();
@@ -129,7 +129,7 @@ namespace Application
         }
 
 
-        private bool ValidarRazaoSocial(string nomeRazaoSocial)
+        private static bool ValidarRazaoSocial(string nomeRazaoSocial)
         {
             if (string.IsNullOrEmpty(nomeRazaoSocial))
             {
@@ -148,7 +148,7 @@ namespace Application
             }
         }
 
-        private bool ValidarPais(string pais)
+        private static bool ValidarPais(string pais)
         {
             if (string.IsNullOrEmpty(pais))
             {
@@ -167,7 +167,7 @@ namespace Application
             }
         }
 
-        private bool ValidarSituacao(char situacao)
+        private static bool ValidarSituacao(char situacao)
         {
             if (situacao is not 'A' && situacao is not 'I')
             {
@@ -180,7 +180,7 @@ namespace Application
             }
         }
 
-        private bool ValidarData(DateOnly data)
+        private static bool ValidarData(DateOnly data)
         {
             if (data > DateOnly.FromDateTime(DateTime.Now))
             {
@@ -192,7 +192,7 @@ namespace Application
 
 
 
-        public void CadastrarFornecedor()
+        public static void CadastrarFornecedor()
         {
             Console.Write("Informe o CNPJ: ");
             string cnpj = Console.ReadLine();
