@@ -10,6 +10,10 @@ namespace Application.Compra
 {
     public class PurchaseItem
     {
+        private int qtd;
+        private decimal valor;
+        private decimal v;
+
         public int Id { get; set; }
 
 
@@ -36,6 +40,14 @@ namespace Application.Compra
             Quantidade = quantidade;
             ValorUnitario = valorUnitario;
             TotalItem = quantidade * valorUnitario;
+        }
+
+        public PurchaseItem(int id, int qtd, decimal valor, decimal v)
+        {
+            Id = id;
+            this.qtd = qtd;
+            this.valor = valor;
+            this.v = v;
         }
     }
 }

@@ -10,41 +10,43 @@ namespace Application.Classes.Purchases
     public class Metodo
     {
         //Lista de itens
-        public List<PurchaseItem> PurchaseItems { get; private set; }
+        public List<PurchaseItem> purchaseItems { get; private set; }
 
         public Metodo()
         {
-            PurchaseItems = new List<PurchaseItem>();
+            purchaseItems = new List<PurchaseItem>();
         }
 
-        public bool AdicionarItem(PurchaseItem item)
+        public void AdicionarItem(PurchaseItem purchaseItems)
         {
-            if (PurchaseItems.Count >= 3)       //verificando até 3 itens no máx
+            if (purchaseItems.Exists(i => i.id == PurchaseItem.id))
             {
-                Console.WriteLine("Limite de 3 itens por compra atingido!");
-                return false;
-            }
+                Console.WriteLine("Item ja cadastrado");
 
-            PurchaseItems.Add(item);
-            Console.WriteLine("Item adicionado com sucesso!");
-            return true;
+                if (purchaseItems.Count >= 3)       //verificando até 3 itens no máx
+                {
+                    Console.WriteLine("Limite de 3 itens por compra atingido!");
+                }
+                purchaseItems.Add(item);
+                Console.WriteLine("Item adicionado com sucesso!");
+            }
         }
 
         public PurchaseItem BuscarItem(int id)
         {
-            return PurchaseItems.Find(i => i.Id == id); //busca o primeiro elemento da lista que satisfaça a condição
+            return purchaseItems.Find(i => i.Id == id); //busca o primeiro elemento da lista que satisfaça a condição
         }
 
-        public void ListarItens()
+        public void ListarItems()
         {
-            if (PurchaseItems.Count == 0)
+            if (purchaseItems.Count == 0)
             {
                 Console.WriteLine("Nenhum item adicionado.");
                 return;
             }
 
             Console.WriteLine("\n Itens: ");
-            foreach (var item in PurchaseItems)
+            foreach (var item in purchaseItems)
             {
                 Console.WriteLine($"ID: {item.Id} Qtd: {item.Quantidade} Valor Unit: {item.ValorUnitario} Total: {item.TotalItem}");
             }
@@ -52,7 +54,7 @@ namespace Application.Classes.Purchases
 
         public void AlterarItem(int id, int novaQuantidade, decimal novoValor)
         {
-            var item = PurchaseItems.FirstOrDefault(i => i.Id == id);
+            var item = purchaseItems.FirstOrDefault(i => i.Id == id);
             if (item == null)
             {
                 Console.WriteLine("Item não encontrado!");
@@ -67,21 +69,21 @@ namespace Application.Classes.Purchases
 
         public void RemoverItem(int id)
         {
-            var item = PurchaseItems.FirstOrDefault(i => i.Id == id);
+            var item = purchaseItems.FirstOrDefault(i => i.Id == id);
             if (item == null)
             {
                 Console.WriteLine("Item não encontrado!");
                 return;
             }
 
-            PurchaseItems.Remove(item);
+            purchaseItems.Remove(item);
             Console.WriteLine($" Item {id} removido!");
         }
 
         //Calcular total geral dos itens
         public decimal CalcularTotalGeral()
         {
-            return PurchaseItems.Sum(i => i.TotalItem);
+            return purchaseItems.Sum(i => i.TotalItem);
         }
     }
 
