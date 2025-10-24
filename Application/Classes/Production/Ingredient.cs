@@ -55,7 +55,6 @@ namespace Application.Classes.Production
             while ((line = sr.ReadLine()!) != null)
             {
                 var dado = line.Split(',');
-                livros.Add(new Livro(dado[0], dado[1], dado[2], dado[3]));
             }
             sr.Close();
         }
@@ -80,29 +79,36 @@ namespace Application.Classes.Production
         {
             Console.Write("Insira o Id do ingrediente: ");
             string Id = Console.ReadLine()!;
+            Console.WriteLine();
 
             Console.Write("Insira o nome do ingrediente: ");
             string Nome = Console.ReadLine()!;
+            Console.WriteLine();
 
-            Console.Write("Insira a data da última compra do ingrediente: ");
+            Console.Write("Insira a data da última compra do ingrediente DD/MM/AAAA: ");
             DateOnly Data = DateOnly.Parse(Console.ReadLine()!);
+            Console.WriteLine();
 
-            Console.Write("Insira a Data de cadastro do ingrediente: ");
+            Console.Write("Insira a Data de cadastro do ingrediente DD/MM/AAAA: ");
             DateOnly DataCadastro = DateOnly.Parse(Console.ReadLine()!);
+            Console.WriteLine();
+
+            char situacao;
 
             do
             {
                 Console.Write("Informe a situação do ingrediente (A - Ativo, I - Inativo): ");
-                char situacao = char.Parse(Console.ReadLine()!);
+                situacao = char.Parse(Console.ReadLine()!);
 
-                if ((situacao != 'A') && (situacao != 'I'))
+                if (situacao != 'A' && situacao != 'I')
                     Console.WriteLine("Situação inválida, tente novamente.");
 
-            } while ((situacao != 'A') && (situacao != 'I'));
+            } while (situacao != 'A' && situacao != 'I');
 
             Ingredient novoIngredient = new(Id, Nome, Data, DataCadastro, situacao);
 
             Ingredients.Add(novoIngredient);
+
             SaveFile();
         }
 
@@ -121,18 +127,15 @@ namespace Application.Classes.Production
             Console.Write("Informe o novo nome do ingrediente: ");
             UpdatedIngredient.Nome = Console.ReadLine()!;
 
-            Console.Write("Informe a nova situação do Ingrediente: ");
-            UpdatedIngredient.situacao = char.Parse(Console.ReadLine()!);
-
             do
             {
-                Console.Write("Informe a nova situação do Ingrediente: ");
+                Console.Write("Informe a nova situação do Ingrediente (A - Ativo, I - Inativo): ");
                 UpdatedIngredient.situacao = char.Parse(Console.ReadLine()!);
 
-                if ((UpdatedIngredient.situacao != 'A') && (UpdatedIngredient.situacao != 'I'))
+                if (UpdatedIngredient.situacao != 'A' && UpdatedIngredient.situacao != 'I')
                     Console.WriteLine("Situação inválida, tente novamente.");
 
-            } while ((UpdatedIngredient.situacao != 'A') && (UpdatedIngredient.situacao != 'I'));
+            } while (UpdatedIngredient.situacao != 'A' && UpdatedIngredient.situacao != 'I');
 
             SaveFile();
             return UpdatedIngredient;
@@ -149,7 +152,14 @@ namespace Application.Classes.Production
             StreamWriter writer = new StreamWriter(fullPath);
             foreach (var ingredient in Ingredients)
             {
-                writer.WriteLine(ingredient);
+                string idFormatado = ingredient.Id.PadRight(5);
+                string nomeFormatado = ingredient.Nome.PadRight(20);
+                string UltimaCompraFormatado = ingredient.UltimaCompra.ToString("ddMMyyyy");
+                string DataCadastroFormatado = ingredient.DataCadastro.ToString("ddMMyyyy");
+
+                string dadoFinal = idFormatado + nomeFormatado + UltimaCompraFormatado + DataCadastroFormatado + ingredient.situacao;
+
+                writer.WriteLine(dadoFinal);
             }
             writer.Close();
         }
@@ -159,12 +169,12 @@ namespace Application.Classes.Production
             int opcao;
             do
             {
-                Console.Write("Escolha uma opção: ");
-                Console.Write("1 - Criar novo Ingrediente: ");
-                Console.Write("2 - Encontrar algum Ingrediente: ");
-                Console.Write("3 - Alterar algum ingrediente existente: ");
-                Console.Write("4 - Imprimir todos os ingredientes: ");
-                Console.Write("5 - Sair");
+                Console.WriteLine("Escolha uma opção: ");
+                Console.WriteLine("1 - Criar novo Ingrediente: ");
+                Console.WriteLine("2 - Encontrar algum Ingrediente: ");
+                Console.WriteLine("3 - Alterar algum ingrediente existente: ");
+                Console.WriteLine("4 - Imprimir todos os ingredientes: ");
+                Console.WriteLine("5 - Sair");
                 opcao = int.Parse(Console.ReadLine()!);
 
                 switch (opcao)
