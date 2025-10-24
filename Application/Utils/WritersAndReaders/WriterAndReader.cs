@@ -71,7 +71,7 @@ namespace Application.Utils.WritersAndReaders
 
 
 
-        public List<string> LerArquivoEColocarNaLista(string diretorio, string nomeArquivo)
+        public List<string> LerArquivoEColocarNaLista(string diretorio, string nomeArquivo)//nao funciona mais essa bomba
         {
             var caminho = Verificador(diretorio, nomeArquivo);
             var linhas = new List<string>();
@@ -79,7 +79,7 @@ namespace Application.Utils.WritersAndReaders
             using (StreamReader sr = new StreamReader(caminho))
             {
                 string linha;
-                while ((linha = sr.ReadLine()) != null)
+                while ((linha = sr.ReadLine()!) != null)
                 {
                     linhas.Add(linha);
                 }
@@ -89,7 +89,7 @@ namespace Application.Utils.WritersAndReaders
         }
 
 
-        public void LerListaEColocarNoArquivo(List<string> l, string diretorio, string nomeArquivo)
+        public void LerListaEColocarNoArquivo(List<string> l, string diretorio, string nomeArquivo)// essa aqui eu não sei ainda mas tamo ai vendo no que da quem sabe né temos que ser otimistas VAMO TIMEEEEEEE
         {
             var caminho = Verificador(diretorio, nomeArquivo);
             StreamWriter sw = new StreamWriter(caminho);

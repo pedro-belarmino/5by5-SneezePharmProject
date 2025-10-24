@@ -1,12 +1,12 @@
-﻿using Application.Prod;
+﻿using Application;
+using Application.Prod;
 using Application.Utils.WritersAndReaders;
-
+using Application.Classes.Sales;
 internal class Program
 {
-    private static void Main(string[] args)
+    private static void Main()
     {
-        List<string> lista = new List<string>();
-
-        ProduceItem teste = new ProduceItem();
+        Sale s = new Sale();
+        s.Menu();
     }
 }
