@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+
 namespace Application.Classes.Purchase
 {
     public class Purchases
@@ -24,6 +25,8 @@ namespace Application.Classes.Purchase
             DataCompra = dataCompra;
             RecebeFornecedor = recebeFornecedor;
             ValorTotal = valorTotal;
+
+
         }
     }
 

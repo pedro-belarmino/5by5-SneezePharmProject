@@ -1,24 +1,14 @@
-﻿
-Console.Write("Cnpj: ");
-string cnpj = Console.ReadLine();
 
-
-
-bool ValidarCnpj(string cnpj)
+﻿//using Application.Prod;
+using Application.Classes.Production;
+using Application.Utils.WritersAndReaders;
+using Application.Classes.Sales;
+internal class Program
 {
-    char[] letras = cnpj.ToCharArray();
-    int letra1 = int.Parse(letras[0].ToString());
-    
-    foreach(char l in letras)
+    private static void Main()
     {
-        Console.WriteLine(l);
+        Sale s = new Sale();
+        s.Menu();
     }
-
-
-    return true;
 }
 
-
-
-
-ValidarCnpj(cnpj);
