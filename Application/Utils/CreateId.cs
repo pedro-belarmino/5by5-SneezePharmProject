@@ -11,7 +11,7 @@ namespace Application
     {
         public string Create(List<string> list)
         {
-            if (list.Count == 0)
+            if (list.Count == 0 || list == null)
                 return "00001";
 
             string lastLine = list[list.Count - 1];

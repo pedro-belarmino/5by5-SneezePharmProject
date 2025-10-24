@@ -8,10 +8,10 @@ namespace Application.Classes
 {
     public class RestrictedCustomers
     {
-        public Customers Customers {  get; set; }
+        public Customer Customers {  get; set; }
 
 
-        public RestrictedCustomers(Customers customers) 
+        public RestrictedCustomers(Customer customers) 
         {
             Customers = customers;
         }

@@ -1,11 +1,13 @@
-﻿using Application.Classes.Production;
+
+using Application.Classes.Production;
+using Application.Utils.WritersAndReaders;
+using Application.Classes.Sales;
 
 internal class Program
 {
-    private static void Main(string[] args)
+    private static void Main()
     {
-        Ingredient ingredient = new Ingredient();
-
-        ingredient.IngredientMenu();
+        Sale s = new Sale();
+        s.Menu();
     }
 }
