@@ -19,6 +19,7 @@ namespace Application.Classes.Production
         public DateOnly UltimaCompra { get; private set; }
         public DateOnly DataCadastro { get; private set; }
         public char situacao { get; private set; }
+        private int lastId = 0;
 
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Ingredient.data";
@@ -65,6 +66,13 @@ namespace Application.Classes.Production
                 Ingredients.Add(ing);
             }
             sr.Close();
+
+            if (Ingredients.Count > 0)
+                lastId = Ingredients.Select(x => int.Parse(x.Id!.Substring(2, 4))).Max();
+            else
+            {
+                lastId = 0;
+            }
         }
 
         public Ingredient()
@@ -85,8 +93,8 @@ namespace Application.Classes.Production
 
         public void CreateIngredient()
         {
-            Console.Write("Insira o Id do ingrediente: ");
-            string Id = Console.ReadLine()!;
+            lastId++;
+            string Id = $"AI{lastId:D4}";
             Console.WriteLine();
 
             Console.Write("Insira o nome do ingrediente: ");
