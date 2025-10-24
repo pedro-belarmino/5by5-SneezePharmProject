@@ -34,43 +34,20 @@ namespace Application
         {
             Console.WriteLine("Cadastro de Cliente");
             bool cpfValido = false, idadeValida = false, telefoneValido = false, situacaoValida = false, dtCadastroValida = false;
+            string nome;
             do
             {
                 Console.WriteLine("Informe o CPF: ");
                 string cpf = Console.ReadLine()!;
-                if (cpf.Length == 11)
-                {
-                    if (true)
-                    {
-                        foreach (var registro in cpf)
-                        {
-                            cpfValido = (registro.ToString()) != cpf;
-                        }
-                        if (cpfValido)
-                        {
-                            cpfValido = ValidarCPF(cpf);
-                            if (!cpfValido)
-                                Console.WriteLine("CPF inválido! Informe um CPF válido");
-                        }
-                        else
-                        {
-                            Console.WriteLine("CPF já cadastrado na base de clientes");
-                        }
+                ValidarCPF(cpf);
+                
+            } while (cpfValido == false);
 
-                    }
-                }
-                else
-                {
-                    Console.WriteLine("CPF inválido! Informe um CPF com 11 dígitos");
-                }
-            } while (!cpfValido);
-
-            string nome;
             do
             {
                 Console.WriteLine("Informe o nome: ");
                 nome = (AjustarLimite((Console.ReadLine()!), 50));
-            } while (nome.Length < 51 && nome is null);
+            } while (nome.Length < 50);
 
             do
             {
@@ -79,36 +56,37 @@ namespace Application
                 if(dataNascimento > (DateOnly.FromDateTime(DateTime.Now))) 
                     Console.WriteLine("Inválida! Data de nascimento não pode ser futura."); 
                 int maioridade = DateTime.Now.Year - dataNascimento.Year;
-                if ( maioridade < 18) 
-                    Console.WriteLine("Venda proibida para menores de 18 anos!"); 
-                else 
+                if (maioridade < 18)
+                { 
+                    Console.WriteLine("Venda proibida para menores de 18 anos!");
+                    CadastrarCliente(); 
+                }   
+                else
                     idadeValida = true;
 
-            } while (!idadeValida);
+            } while (idadeValida == false);
 
             do
             {
                 Console.WriteLine("Informe o telefone com DDD:  ");
                 string telefone = Console.ReadLine()!;
-                if (telefone.Length < 11)
+                if (telefone.Length < 12)
                     Console.WriteLine("Telefone deve conter 3 dígitos do DDD + 9 dígitos do número");
-            } while (!telefoneValido);
+                else
+                    telefoneValido = true;
+            } while (telefoneValido == false);
 
-            //DateOnly ultimaCompra = 
+            DateOnly ultimaCompra;
 
             do
             {
                 Console.WriteLine();
                 DateOnly dataCadastro = DateOnly.Parse(Console.ReadLine()!);
                 if (dataCadastro > (DateOnly.FromDateTime(DateTime.Now)))
-                {
                     Console.WriteLine("Inválida! Data de cadastro não pode ser futura");
-                }
                 else
-                {
                     dtCadastroValida = true;
-                }
-            } while (!dtCadastroValida);
+            } while (dtCadastroValida == false);
 
             do
             {
@@ -116,11 +94,53 @@ namespace Application
                 char situacao = (char.Parse(Console.ReadLine()!));                
                 if (situacao != 'I' && situacao != 'A')
                     Console.WriteLine("Situação deve ser A para Ativo ou I para Inativo");
-            } while (!situacaoValida);
+            } while (situacaoValida == false);
 
         }
 
+        public Customer PesquisarCPF(string cpf) 
+        {
+            return Cliente.Find(c => c.Cpf == cpf);
+        }
+
         public bool ValidarCPF(string cpf)
+        {
+            bool cpfValido = false;
+
+            if (cpf.Length == 11)
+            {
+                bool apenasNumero = cpf.All(char.IsDigit);
+
+                if (apenasNumero)
+                {
+                    if (PesquisarCPF(cpf) is null)
+                        cpfValido = true;
+                    if (cpfValido)
+                    {
+                        cpfValido = ValidarMatematicamenteCPF(cpf);
+                        if (!cpfValido)
+                        {
+                            Console.WriteLine("CPF inválido! Informe um CPF válido");
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("CPF já cadastrado na base de clientes");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("CPF deve conter apenas números!");
+                }
+            }
+            else
+            {
+                Console.WriteLine("CPF inválido! Informe um CPF com 11 dígitos");
+            }
+            return cpfValido;
+        }
+
+        public bool ValidarMatematicamenteCPF(string cpf)
         {
             char[] cpfConvertidoChar = cpf.ToCharArray();
 
@@ -174,11 +194,13 @@ namespace Application
                         if (cpfConvertidoChar[10] == 0)
                         {
                             validacao2 = true;
+                            cpfValido = true;
                         }
                     }
                     else if (digVerificador2 == (int.Parse(cpfConvertidoChar[10].ToString())))
                     {
                         validacao2 = true;
+                        cpfValido = true;
                     }
                 }
             }
@@ -187,26 +209,19 @@ namespace Application
                 return cpfValido;
             }
 
-            if (validacao1 == true && validacao2 == true)
-            {
-                cpfValido = true;
-            }
-
             return cpfValido;
         }
 
-        public string AjustarLimite(string propriedade, int limite)
+        public string AjustarLimite(string nome, int limite)
         {
-            string propPreenchida = propriedade;
-
-            if (string.IsNullOrEmpty(propriedade))
+            if (string.IsNullOrEmpty(nome))
                 Console.WriteLine("A entrada não pode ser vazia");
-            else if (propriedade.Length > limite)
+            else if (nome.Length > limite)
                 Console.WriteLine($"Limite de caracteres atingido! Use até {limite} caracteres.");
-            else if (propriedade.Length < limite)
-                propPreenchida = propriedade.PadRight(limite);
+            else if (nome.Length < limite)
+                nome.PadRight(limite);
 
-            return propPreenchida;
+            return nome;
         }
 
         public string ToFile()
@@ -225,8 +240,5 @@ namespace Application
                 $"\nSituação: {Situacao}";
         }
     }
-
-
-
 }
 
