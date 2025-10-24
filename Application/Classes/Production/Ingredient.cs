@@ -45,6 +45,7 @@ namespace Application.Classes.Production
                 Console.WriteLine(e.StackTrace);
                 Console.WriteLine(e.Message);
             }
+            PopularLista();
         }
 
         public void PopularLista()
@@ -54,7 +55,15 @@ namespace Application.Classes.Production
             string line;
             while ((line = sr.ReadLine()!) != null)
             {
-                var dado = line.Split(',');
+                string id = line.Substring(0, 5).Trim();
+                string nome = line.Substring(5, 20).Trim();
+                DateOnly ultimaCompra = DateOnly.ParseExact(line.Substring(25, 8), "ddMMyyyy");
+                DateOnly dataCadastro = DateOnly.ParseExact(line.Substring(33, 8), "ddMMyyyy");
+                char situacao = line[41];
+
+                Ingredient ing = new Ingredient(id, nome, ultimaCompra, dataCadastro, situacao);
+
+                Ingredients.Add(ing);
             }
             sr.Close();
         }
@@ -117,6 +126,7 @@ namespace Application.Classes.Production
             Console.Write("Informe o ID do Ingredient a ser encontrado: ");
             string variavel = Console.ReadLine()!;
             var ingredienteMexido = Ingredients.Find(x => x.Id == variavel);
+            Console.WriteLine(ingredienteMexido);
             return ingredienteMexido;
         }
 
@@ -152,8 +162,8 @@ namespace Application.Classes.Production
             StreamWriter writer = new StreamWriter(fullPath);
             foreach (var ingredient in Ingredients)
             {
-                string idFormatado = ingredient.Id.PadRight(5);
-                string nomeFormatado = ingredient.Nome.PadRight(20);
+                string idFormatado = ingredient.Id!.PadRight(5);
+                string nomeFormatado = ingredient.Nome!.PadRight(20);
                 string UltimaCompraFormatado = ingredient.UltimaCompra.ToString("ddMMyyyy");
                 string DataCadastroFormatado = ingredient.DataCadastro.ToString("ddMMyyyy");
 
@@ -162,6 +172,11 @@ namespace Application.Classes.Production
                 writer.WriteLine(dadoFinal);
             }
             writer.Close();
+        }
+
+        public override string? ToString()
+        {
+            return $"ID: {Id}, Nome: {Nome}, Ultima Compra: {UltimaCompra}, Data de cadastro: {DataCadastro}, Situação: {situacao}";
         }
 
         public void IngredientMenu()
@@ -198,7 +213,7 @@ namespace Application.Classes.Production
                         Console.WriteLine("Informe uma opção válida.");
                         break;
                 }
-            } while (true);
+            } while (opcao != 5);
         }
     }
 }
