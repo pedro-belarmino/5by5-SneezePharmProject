@@ -9,27 +9,25 @@ namespace Application
 {
     public class Customer
     {
+        public List<Customer> Cliente { get; set; } = new();
         public string Cpf { get; private set; }
         public string Nome { get; private set; }
         public DateOnly DataNascimento { get; private set; }
         public string Telefone { get; private set; }
-        public DateOnly UltimaCompra { get; private set; }
+        public DateOnly? UltimaCompra { get; private set; }
         public DateOnly DataCadastro { get; private set; }
         public char Situacao { get; private set; }
 
-        public Customer(string cpf, string nome, DateOnly dataNascimento, string telefone, DateOnly ultimaCompra, DateOnly dataCadastro, char situacao)
+        public Customer(string cpf, string nome, DateOnly dataNascimento, string telefone, DateOnly dataCadastro, char situacao)
         {
             Cpf = cpf;
             Nome = nome;
             DataNascimento = dataNascimento;
             Telefone = telefone;
-            UltimaCompra = ultimaCompra;
+            UltimaCompra = null;
             DataCadastro = dataCadastro;
             Situacao = situacao;
         }
-
-
-        public string AjustarLimite(string propriedade, int limite)
 
         public void CadastrarCliente()
         {
@@ -108,36 +106,22 @@ namespace Application
         {
             bool cpfValido = false;
 
-            if (cpf.Length == 11)
+            if (PesquisarCPF(cpf) is null)
             {
-                bool apenasNumero = cpf.All(char.IsDigit);
-
-                if (apenasNumero)
+                if (cpf.Length == 11)
                 {
-                    if (PesquisarCPF(cpf) is null)
-                        cpfValido = true;
-                    if (cpfValido)
-                    {
+                    bool apenasNumero = cpf.All(char.IsDigit);
+                    if (apenasNumero)
                         cpfValido = ValidarMatematicamenteCPF(cpf);
-                        if (!cpfValido)
-                        {
-                            Console.WriteLine("CPF inválido! Informe um CPF válido");
-                        }
-                    }
-                    else
-                    {
-                        Console.WriteLine("CPF já cadastrado na base de clientes");
-                    }
                 }
-                else
+                if (cpfValido == false)
                 {
-                    Console.WriteLine("CPF deve conter apenas números!");
+                    Console.WriteLine("CPF inválido! Ele deve conter 11 números");
                 }
             }
             else
-            {
-                Console.WriteLine("CPF inválido! Informe um CPF com 11 dígitos");
-            }
+                Console.WriteLine("CPF já cadastrado");
+
             return cpfValido;
         }
 
@@ -221,17 +205,15 @@ namespace Application
             else if (nome.Length > limite)
                 Console.WriteLine($"Limite de caracteres atingido! Use até {limite} caracteres.");
             else if (nome.Length < limite)
-                nome.PadRight(limite);
+                nome = nome.PadRight(limite);
 
             return nome;
         }
 
-        // public bool ValidarCPF(string cpf) 
-        // {
-
-        // }
-
-
+        public string ToFile()
+        {
+            return $"{Cpf}{Nome}{DataNascimento}{Telefone}{UltimaCompra}{DataCadastro}{Situacao}";
+        }
 
         public override string ToString()
         {
