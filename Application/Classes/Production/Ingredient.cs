@@ -38,7 +38,6 @@ namespace Application.Classes.Production
                     using (StreamWriter wr = new StreamWriter(fullPath)) { }
                     ;
                 }
-
             }
             catch (Exception e)
             {

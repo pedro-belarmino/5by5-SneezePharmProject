@@ -1,6 +1,4 @@
-﻿//using Application.Prod;
-using Application.Classes.Production;
-using Application.Utils.WritersAndReaders;
+﻿using Application.Classes.Production;
 
 internal class Program
 {
