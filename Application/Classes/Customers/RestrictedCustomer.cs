@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 
 namespace Application.Classes
 {
-    public class RestrictedCustomers
+
+    public class RestrictedCustomer
+
     {
         public Customer Customers {  get; set; }
 
 
-        public RestrictedCustomers(Customer customers) 
+        public RestrictedCustomer(Customer customers) 
+
         {
             Customers = customers;
         }
