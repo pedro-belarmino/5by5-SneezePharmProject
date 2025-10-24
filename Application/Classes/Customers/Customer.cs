@@ -1,5 +1,4 @@
-﻿using Application.Classes.Purchase;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -10,7 +9,6 @@ namespace Application
 {
     public class Customer
     {
-        public List<Customer> Cliente { get; set; } = new();
         public string Cpf { get; private set; }
         public string Nome { get; private set; }
         public DateOnly DataNascimento { get; private set; }
