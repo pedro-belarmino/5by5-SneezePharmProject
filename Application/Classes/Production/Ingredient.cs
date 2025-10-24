@@ -70,7 +70,7 @@ namespace Application.Classes.Production
         public Ingredient()
         {
             objeto.Verificador(diretorio, fullPath);
-            Console.WriteLine("Arquivo e diretório criados com sucesso.");
+            Console.WriteLine("Arquivo e diretório criados com sucesso."); 
             Verificador();
         }
 
