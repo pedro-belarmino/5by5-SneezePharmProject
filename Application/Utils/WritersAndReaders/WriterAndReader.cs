@@ -11,7 +11,7 @@ namespace Application.Utils.WritersAndReaders
     public class Writer_Reader
     {
         /*
-        Como usar: 
+        Como usar o verificador: 
         instancia um objeto 'objeto' no topo da classe:********
 
         Writer_Reader objeto = new Writer_Reader();
@@ -45,7 +45,6 @@ namespace Application.Utils.WritersAndReaders
         }
         /////////////////////////////////////
         */
-
         public string Verificador(string directoryPath, string fullPath)
         {
             try
@@ -69,8 +68,6 @@ namespace Application.Utils.WritersAndReaders
             }
         }
 
-
-
         public List<string> LerArquivoEColocarNaLista(string diretorio, string nomeArquivo)
         {
             var caminho = Verificador(diretorio, nomeArquivo);
@@ -79,7 +76,7 @@ namespace Application.Utils.WritersAndReaders
             using (StreamReader sr = new StreamReader(caminho))
             {
                 string linha;
-                while ((linha = sr.ReadLine()) != null)
+                while ((linha = sr.ReadLine()!) != null)
                 {
                     linhas.Add(linha);
                 }
@@ -87,7 +84,6 @@ namespace Application.Utils.WritersAndReaders
 
             return linhas;
         }
-
 
         public void LerListaEColocarNoArquivo(List<string> l, string diretorio, string nomeArquivo)
         {
