@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Application.Utils.WritersAndReaders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,21 @@ namespace Application.Classes.Suppliers
 {
     public class RestrictedSupplier
     {
-        public string Cnpj { get; set; }
+        Writer_Reader objeto = new Writer_Reader();
+        public static List<RestrictedSupplier> FornecedoresRestritos = new List<RestrictedSupplier>();
+        public string Cnpj { get; private set; }
+
+        static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
+        static string file = "RestructedSuppliers.data";
+        string fullPath = Path.Combine(diretorio, file);
+
+
+        public RestrictedSupplier()
+        {
+            objeto.Verificador(diretorio, fullPath);
+            Console.WriteLine("Arquivo e diretório criados com sucesso.");
+            PopularLista();
+        }
 
 
         public RestrictedSupplier(string cnpj)
@@ -16,7 +31,69 @@ namespace Application.Classes.Suppliers
             Cnpj = cnpj;
         }
 
-        public static List<RestrictedSupplier> FornecedoresRestritos = new List<RestrictedSupplier>();
+        public void PopularLista()
+        {
+            StreamReader sr = new StreamReader(fullPath);
+
+            string linha;
+            while ((linha = sr.ReadLine()!) != null)
+            {
+                string cnpj = linha.Substring(0, 14).Trim();
+                string razaoSocial = linha.Substring(14, 50).Trim();
+                string pais = linha.Substring(64, 20).Trim();
+                DateOnly abertura = DateOnly.ParseExact(linha.Substring(84, 8), "ddMMyyyy");
+
+                string ultimoFornecimentoString = linha.Substring(92, 8).Trim();
+                DateOnly ultimoFornecimento;
+
+                if (string.IsNullOrEmpty(ultimoFornecimentoString))
+                    ultimoFornecimento = DateOnly.MinValue;
+                else
+                {
+                    if (!DateOnly.TryParseExact(ultimoFornecimentoString, "ddMMyyyy", out ultimoFornecimento))
+                        ultimoFornecimento = DateOnly.MinValue;
+                }
+                DateOnly dataCadastro = DateOnly.ParseExact(linha.Substring(100, 8), "ddMMyyyy");
+                char situacao = linha[108];
+
+                RestrictedSupplier fornecedorRestrito = new RestrictedSupplier(cnpj, razaoSocial, pais, abertura, ultimoFornecimento, dataCadastro, situacao);
+
+                FornecedoresRestritos.Add(fornecedorRestrito);
+            }
+            sr.Close();
+        }
+
+
+        private void SalvarLista()
+        {
+            StreamWriter sw = new StreamWriter(fullPath, false);
+
+            foreach (RestrictedSupplier fornecedorRestrito in FornecedoresRestritos)
+            {
+                string ultimoFornecimentoString;
+                if (fornecedorRestrito.UltimoFornecimento == DateOnly.MinValue)
+                    ultimoFornecimentoString = "";
+                else
+                    ultimoFornecimentoString = fornecedorRestrito.UltimoFornecimento.ToString("ddMMyyyy");
+
+                string linha = fornecedorRestrito.Cnpj.PadRight(14) +
+                               fornecedorRestrito.RazaoSocial.PadRight(50) +
+                               fornecedorRestrito.Pais.PadRight(20) +
+                               fornecedorRestrito.DataAbertura.ToString("ddMMyyyy") +
+                               ultimoFornecimentoString.PadRight(8) +
+                               fornecedorRestrito.DataCadastro.ToString("ddMMyyyy") +
+                               fornecedorRestrito.Situacao;
+
+                sw.WriteLine(linha);
+            }
+            sw.Close();
+        }
+
+
+
+
+
+
 
 
         private static Supplier FiltrarFornecedorCNPJRestrito()
