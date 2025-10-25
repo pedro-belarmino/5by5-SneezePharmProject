@@ -24,7 +24,7 @@ namespace Application.Classes.Production
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Ingredient.data";
         string fullPath = Path.Combine(diretorio, file);
-
+        //****************************** olhar aqui, está reduntante com outra parte.
         public void Verificador()
         {
             try
@@ -55,10 +55,10 @@ namespace Application.Classes.Production
             string line;
             while ((line = sr.ReadLine()!) != null)
             {
-                string id = line.Substring(0, 5).Trim();
-                string nome = line.Substring(5, 20).Trim();
-                DateOnly ultimaCompra = DateOnly.ParseExact(line.Substring(25, 8), "ddMMyyyy");
-                DateOnly dataCadastro = DateOnly.ParseExact(line.Substring(33, 8), "ddMMyyyy");
+                string id = line.Substring(0, 6).Trim();
+                string nome = line.Substring(6, 20).Trim();
+                DateOnly ultimaCompra = DateOnly.ParseExact(line.Substring(26, 8), "ddMMyyyy");
+                DateOnly dataCadastro = DateOnly.ParseExact(line.Substring(34, 8), "ddMMyyyy");
                 char situacao = line[41];
 
                 Ingredient ing = new Ingredient(id, nome, ultimaCompra, dataCadastro, situacao);
@@ -76,9 +76,9 @@ namespace Application.Classes.Production
         }
 
         public Ingredient()
-        {
+        {   //***************** aqui a outra bomba.
             objeto.Verificador(diretorio, fullPath);
-            Console.WriteLine("Arquivo e diretório criados com sucesso."); 
+            Console.WriteLine($"Arquivo {file} e diretório criados com sucesso.");
             Verificador();
         }
 
@@ -101,11 +101,11 @@ namespace Application.Classes.Production
             string Nome = Console.ReadLine()!;
             Console.WriteLine();
 
-            Console.Write("Insira a data da última compra do ingrediente DD/MM/AAAA: ");
+            Console.Write("Insira a data da última compra do ingrediente DD-MM-AAAA: ");
             DateOnly Data = DateOnly.Parse(Console.ReadLine()!);
             Console.WriteLine();
 
-            Console.Write("Insira a Data de cadastro do ingrediente DD/MM/AAAA: ");
+            Console.Write("Insira a Data de cadastro do ingrediente DD-MM-AAAA: ");
             DateOnly DataCadastro = DateOnly.Parse(Console.ReadLine()!);
             Console.WriteLine();
 
