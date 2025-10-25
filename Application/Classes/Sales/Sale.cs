@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using Application.Utils;
 using Application.Utils.WritersAndReaders;
 
@@ -9,208 +11,216 @@ namespace Application.Classes.Sales
 {
     public class Sale
     {
-        // Propriedades da venda
-        public int Id { get; private set; }
+
+
+        Writer_Reader objeto = new Writer_Reader();
+        public List<Sale> Sales = new List<Sale>();
+
+        public string IdVenda { get; private set; }
         public DateOnly DataVenda { get; private set; }
+        public string ClienteCPF { get; private set; }
         public decimal ValorTotal { get; private set; }
-        public string CpfCliente { get; private set; }
 
-        // Lista global de vendas
-        public List<Sale> TodasAsVendas { get; private set; } = new();
+        static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
+        static string file = "Sales.data";
+        string fullPath = Path.Combine(diretorio, file);
 
-        // Utils
-        private CreateId generateId = new();
-        private Writer_Reader objeto = new Writer_Reader();
-        private string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
-        private string arquivo = "Sales.data";
+        private int lastId = 0;
 
-        // Construtor
         public Sale()
         {
-            string fullPath = Path.Combine(diretorio, arquivo);
             objeto.Verificador(diretorio, fullPath);
-
-            // Carrega todas as vendas do arquivo
-            TodasAsVendas = LerArquivoEColocarNaLista(diretorio, arquivo);
-            Console.WriteLine($"✅ {TodasAsVendas.Count} vendas carregadas do arquivo.");
+            Console.WriteLine("Arquivo e diretório da venda criados com sucesso.");
+            Verificador();
         }
 
-        // Atualizar CPF
-        public void UpdateSale(string novoCpf)
+        public Sale(string i, DateOnly d, string c, decimal v)
         {
-            if (string.IsNullOrWhiteSpace(novoCpf))
-            {
-                Console.WriteLine("CPF inválido. A atualização não foi realizada.");
-                return;
-            }
-
-            CpfCliente = novoCpf;
-            Console.WriteLine($"CPF da venda {Id:D5} atualizado para: {CpfCliente}");
+            this.IdVenda = i;
+            this.DataVenda = d;
+            this.ClienteCPF = c;
+            this.ValorTotal = v;
         }
 
-        // Ler arquivo e converter para lista de Sales
-        public List<Sale> LerArquivoEColocarNaLista(string diretorio, string nomeArquivo)
+
+        public void CreateSale()
         {
-            var caminho = objeto.Verificador(diretorio, nomeArquivo);
-            var lista = new List<Sale>();
+            lastId++;
+            string ID = $"{lastId:D4}";
+            System.Console.WriteLine();
 
-            if (!File.Exists(caminho))
-                return lista;
 
-            using (StreamReader sr = new StreamReader(caminho))
+            System.Console.WriteLine("Insira a data da venda (dd/mm/yyyy)");
+            DateOnly data = DateOnly.Parse(Console.ReadLine()!);
+
+            System.Console.WriteLine("Insira o cpf do cliente");
+            string cpf = Console.ReadLine()!;
+            System.Console.WriteLine();
+
+            System.Console.WriteLine("valor total");
+            decimal vt = decimal.Parse(Console.ReadLine()!);
+
+            Sale newSale = new(ID, data, cpf, vt);
+
+            Sales.Add(newSale);
+            SaveFile();
+        }
+
+
+        public void Verificador()
+        {
+            try
             {
-                string? linha;
-                while ((linha = sr.ReadLine()) != null)
+                if (!Directory.Exists(diretorio))
                 {
-                    if (linha.Length < 24) continue;
+                    Directory.CreateDirectory(diretorio);
+                }
 
-                    string idStr = linha.Substring(0, 5);
-                    string dataStr = linha.Substring(5, 8);
-                    string cpfStr = linha.Substring(13, 11);
-                    string valorStr = linha.Substring(24).Trim();
-
-                    if (!int.TryParse(idStr, out int id)) continue;
-                    int dia = int.Parse(dataStr.Substring(0, 2));
-                    int mes = int.Parse(dataStr.Substring(2, 2));
-                    int ano = int.Parse(dataStr.Substring(4, 4));
-                    DateOnly dataVenda = new DateOnly(ano, mes, dia);
-                    decimal.TryParse(valorStr, out decimal valorTotal);
-
-                    Sale venda = new Sale
-                    {
-                        Id = id,
-                        DataVenda = dataVenda,
-                        ValorTotal = valorTotal,
-                        CpfCliente = cpfStr
-                    };
-
-                    lista.Add(venda);
+                if (!File.Exists(fullPath))
+                {
+                    using (StreamWriter wr = new StreamWriter(fullPath)) { }
+                    ;
                 }
             }
-
-            return lista;
-        }
-
-        // Converte lista de Sales para strings no formato fixo
-        public List<string> ConverterSalesParaStrings(List<Sale> listaDeVendas)
-        {
-            var listaFormatada = new List<string>();
-            foreach (var venda in listaDeVendas)
+            catch (Exception e)
             {
-                string idStr = venda.Id.ToString("D5");
-                string dataStr = venda.DataVenda.ToString("ddMMyyyy");
-                string cpfStr = venda.CpfCliente.PadLeft(11, '0');
-                string valorStr = venda.ValorTotal.ToString("00000.00");
-
-                listaFormatada.Add($"{idStr}{dataStr}{cpfStr}{valorStr}");
+                Console.WriteLine(e.StackTrace);
+                Console.WriteLine(e.Message);
             }
-            return listaFormatada;
+            PopularListaVendas();
         }
 
-        // Menu interativo
-        public void Menu()
+        public void PopularListaVendas()
         {
-            bool continuar = true;
+            StreamReader sr = new StreamReader(fullPath);
 
-            while (continuar)
+            string line;
+            while ((line = sr.ReadLine()!) != null)
             {
-                Console.WriteLine("\n===== MENU DE VENDAS =====");
-                Console.WriteLine("1 - Criar nova venda");
-                Console.WriteLine("2 - Ler todas as vendas");
-                Console.WriteLine("3 - Atualizar CPF de uma venda");
-                Console.WriteLine("0 - Sair");
-                Console.Write("Escolha uma opção: ");
-                string? opcao = Console.ReadLine();
+                // Extrair partes da linha conforme posições
+                string idVenda = line.Substring(0, 5).Trim();
+                DateOnly dataVenda = DateOnly.ParseExact(line.Substring(5, 8), "ddMMyyyy");
+                string clienteCPF = line.Substring(13, 11);
 
-                switch (opcao)
+
+                decimal valorTotalDecimal = decimal.Parse(line.Substring(24, 11));
+                decimal valorTotalDecimalComPonto = valorTotalDecimal / 100;
+
+                // Criar objeto Sale
+                Sale venda = new Sale(idVenda, dataVenda, clienteCPF, valorTotalDecimalComPonto);
+
+                // Adicionar à lista
+                Sales.Add(venda);
+            }
+            sr.Close();
+
+
+            if (Sales.Count > 0)
+                lastId = Sales.Select(x => int.Parse(x.IdVenda!.Substring(0, 4))).Max();
+            else
+            {
+                lastId = 0;
+            }
+
+        }
+
+
+
+        public void PrintSale() //printar
+        {
+            foreach (var s in Sales)
+                Console.WriteLine(s);
+        }
+
+
+        public Sale FindSale()
+        {
+            System.Console.WriteLine("Informe o ID da venda");
+            string i = Console.ReadLine()!;
+            var vendaEncontrada = Sales.Find(j => j.IdVenda == i);
+            System.Console.WriteLine(vendaEncontrada);
+            return vendaEncontrada!;
+        }
+
+
+        public Sale UpdateSale()
+        {
+            Sale vendaNova = FindSale();
+
+            System.Console.WriteLine("Informe a data correta da compra (dd/mm/yyyy)");
+            vendaNova.DataVenda = DateOnly.Parse(Console.ReadLine()!);
+            SaveFile();
+            return vendaNova;
+        }
+
+
+        public void SaveFile()
+        {
+            StreamWriter writer = new StreamWriter(fullPath);
+            foreach (var s in Sales)
+            {
+                string idFormatado = s.IdVenda!.PadLeft(5);
+                string dataVendaFormadatada = s.DataVenda!.ToString("ddMMyyyy");
+                string clienteCPFFormatado = s.ClienteCPF!.PadRight(11);
+
+                string valorTotalFormatado = s.ValorTotal.ToString("00000000.00", CultureInfo.InvariantCulture);
+
+
+                string dadoFinal = idFormatado + dataVendaFormadatada + clienteCPFFormatado + valorTotalFormatado;
+
+                writer.WriteLine(dadoFinal);
+            }
+            writer.Close();
+        }
+
+
+        public void SaleMenu()
+        {
+            int op;
+
+            do
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                System.Console.WriteLine("##### MENU VENDA ####");
+                Console.ResetColor();
+
+                Console.WriteLine("Escolha uma opção: ");
+                Console.WriteLine("1 - Criar nova venda: ");
+                Console.WriteLine("2 - Encontrar venda: ");
+                Console.WriteLine("3 - Alterar venda: ");
+                Console.WriteLine("4 - Imprimir todas as vendas: ");
+                Console.WriteLine("5 - Sair");
+                op = int.Parse(Console.ReadLine()!);
+
+                switch (op)
                 {
-                    case "1":
-                        // Criar nova venda
-                        Console.Write("Data da venda (dd/mm/yyyy): ");
-                        DateOnly dataVenda = DateOnly.Parse(Console.ReadLine()!);
-
-                        Console.Write("Valor total: ");
-                        decimal valor = decimal.Parse(Console.ReadLine()!);
-
-                        Console.Write("CPF do cliente: ");
-                        string cpf = Console.ReadLine()!;
-
-                        // Criar novo ID
-                        var listaString = ConverterSalesParaStrings(TodasAsVendas);
-                        string novoId = generateId.Create(listaString);
-
-                        Sale novaVenda = new Sale
-                        {
-                            Id = int.Parse(novoId),
-                            DataVenda = dataVenda,
-                            ValorTotal = valor,
-                            CpfCliente = cpf
-                        };
-
-                        TodasAsVendas.Add(novaVenda);
-
-                        // Salvar apenas a nova venda no final do arquivo
-                        var novaLinha = ConverterSalesParaStrings(new List<Sale> { novaVenda });
-                        File.AppendAllLines(Path.Combine(diretorio, arquivo), novaLinha);
-
-                        Console.WriteLine("✅ Venda criada com sucesso!");
+                    case 1:
+                        CreateSale();
                         break;
-
-                    case "2":
-                        // Ler todas as vendas do arquivo
-                        Console.WriteLine("\n📋 Lista de Vendas:");
-                        var vendasLidas = LerArquivoEColocarNaLista(diretorio, arquivo);
-
-                        if (vendasLidas.Count == 0)
-                        {
-                            Console.WriteLine("Nenhuma venda registrada.");
-                        }
-                        else
-                        {
-                            foreach (var v in vendasLidas)
-                            {
-                                Console.WriteLine($"ID: {v.Id:D5} | Data: {v.DataVenda:dd/MM/yyyy} | CPF: {v.CpfCliente} | Valor: R$ {v.ValorTotal:F2}");
-                            }
-                        }
+                    case 2:
+                        FindSale();
                         break;
-
-                    case "3":
-                        // Atualizar CPF
-                        Console.Write("Digite o ID da venda a atualizar: ");
-                        int id = int.Parse(Console.ReadLine()!);
-
-                        var venda = TodasAsVendas.FirstOrDefault(x => x.Id == id);
-                        if (venda == null)
-                        {
-                            Console.WriteLine("⚠️ Venda não encontrada!");
-                            break;
-                        }
-
-                        Console.Write("Novo CPF: ");
-                        string novoCpf = Console.ReadLine()!;
-                        venda.UpdateSale(novoCpf);
-
-                        // Salvar toda a lista no arquivo
-                        var listaStringsAtualizada = ConverterSalesParaStrings(TodasAsVendas);
-                        File.WriteAllLines(Path.Combine(diretorio, arquivo), listaStringsAtualizada);
-
-                        Console.WriteLine("✅ CPF atualizado e arquivo salvo!");
+                    case 3:
+                        UpdateSale();
                         break;
-
-                    case "0":
-                        continuar = false;
-                        Console.WriteLine("Encerrando o sistema...");
+                    case 4:
+                        PrintSale();
                         break;
-
+                    case 5:
+                        SaveFile();
+                        return;
                     default:
-                        Console.WriteLine("Opção inválida. Tente novamente.");
+                        Console.WriteLine("Informe uma opção válida.");
                         break;
                 }
+            } while (true);
+        }
 
-                Console.WriteLine("\nPressione qualquer tecla para continuar...");
-                Console.ReadKey();
-                Console.Clear();
-            }
+
+        public override string? ToString()
+        {
+            return " --------------------------------------------------------------------------------- \n " +
+            $"ID: {IdVenda}, Data da Venda: {DataVenda}, CPF do Clinte: {ClienteCPF}, Valor total: {ValorTotal} ";
         }
     }
 }
