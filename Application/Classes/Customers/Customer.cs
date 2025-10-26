@@ -12,12 +12,11 @@ namespace Application
     public class Customer
     {
         Writer_Reader objeto = new Writer_Reader();
-
-        public List<Customer> Clientes = new List<Customer>();
-        public string Cpf { get; private set; }
-        public string Nome { get; private set; }
+        public static List<Customer> Clientes = new List<Customer>();
+        public string? Cpf { get; private set; }
+        public string? Nome { get; private set; }
         public DateOnly DataNascimento { get; private set; }
-        public string Telefone { get; private set; }
+        public string? Telefone { get; private set; }
         public DateOnly? UltimaCompra { get; private set; }
         public DateOnly DataCadastro { get; private set; }
         public char Situacao { get; private set; }
@@ -25,6 +24,8 @@ namespace Application
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Customers.data";
         string fullPath = Path.Combine(diretorio, file);
+
+        /*TRATAR A OPÇÃO 5 DO MENU PARA ADICIONAR TUDO NO ARQUIVO ANTES DE FECHAR*/
 
         public Customer() 
         {
@@ -48,49 +49,50 @@ namespace Application
         }
 
 
-        public void ClientMenu()
+        public static void ClientMenu()
         {
-            int min = 1, max = 5;
             int opcao;
-            do {
-                Console.Clear();
-                Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
-                Console.WriteLine(" |                    >      Cliente      <                    |");
-                Console.WriteLine(" |-------------------------------------------------------------|");
-                Console.WriteLine(" |  [ 1 ] Cadastrar Cliente      |  [ 2 ] Atualizar Cliente    |");
-                Console.WriteLine(" |  [ 3 ] Listar Clientes        |  [ 4 ] Filtrar Cliente      |");
-                Console.WriteLine(" |  [ 5 ] Voltar                 |                             |");
-                Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
-                Console.WriteLine("\nInforme a opção desejada: ");
-                string op = Console.ReadLine()!;
-                opcao = ValidateMenu(op, min, max);
-
-            }while(opcao < min && opcao > max);
-
-            if (opcao == 5)
-                return;
-
-            switch (opcao)
+            do
             {
-                case 1:
-                    CreatClient();
-                    break;
-                case 2:
-                    UpdateClient();
-                    break;
-                case 3:
-                    ListClients();
-                    break;
-                case 4:
-                    int status = SearchClient();
-                    if (status == 0)
-                        ClientMenu();
-                    break;
-            }
+                int min = 1, max = 5;
+                do
+                {
+                    Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
+                    Console.WriteLine(" |                    >      Cliente      <                    |");
+                    Console.WriteLine(" |-------------------------------------------------------------|");
+                    Console.WriteLine(" |  [ 1 ] Cadastrar Cliente      |  [ 2 ] Atualizar Cliente    |");
+                    Console.WriteLine(" |  [ 3 ] Listar Clientes        |  [ 4 ] Filtrar Cliente      |");
+                    Console.WriteLine(" |  [ 5 ] Voltar                 |                             |");
+                    Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
+                    Console.WriteLine("\nInforme a opção desejada: ");
+                    string op = Console.ReadLine()!;
+                    opcao = ValidateMenu(op, min, max);
 
+                } while (opcao < min && opcao > max);
 
+                switch (opcao)
+                {
+                    case 1:
+                        CreatClient();
+                        break;
+                    case 2:
+                        UpdateClient();
+                        break;
+                    case 3:
+                        ListClients();
+                        break;
+                    case 4:
+                        int status = SearchClient();
+                        if (status == 0)
+                            ClientMenu();
+                        break;
+                    case 5:
+                        /*SALVAR ARQUIVO AQUI*/
+                        return;
+                }
+            } while (opcao != 5);
         }
-        public void CreatClient()
+        public static void CreatClient()
         {
             Console.WriteLine("Cadastro de Cliente");
             bool cpfValido = false, idadeValida = false, telefoneValido = false;
@@ -102,7 +104,7 @@ namespace Application
             {
                 Console.WriteLine("Informe o CPF: ");
                 cpf = Console.ReadLine()!;
-                ValidateCPF(cpf);
+                cpfValido = ValidateCPF(cpf);
 
             } while (cpfValido == false);
 
@@ -110,11 +112,11 @@ namespace Application
             {
                 Console.WriteLine("Informe o nome: ");
                 nome = (AdjustCharacterLimit((Console.ReadLine()!), 50));
-            } while (nome.Length < 50);
+            } while (nome.Length != 50);
 
             do
             {
-                Console.WriteLine("Informe a data de nascimento: ");
+                Console.WriteLine("Informe a data de nascimento (DD/MM/AAAA): ");
                 string data = Console.ReadLine()!;
 
                 bool dataValida = DateOnly.TryParseExact(data, "dd/MM/yyyy", out dataNascimento);
@@ -141,7 +143,7 @@ namespace Application
             do
             {
                 Console.WriteLine("Informe a situação do cliente: \n[A] Ativo [I] Inativo ");
-                string s = Console.ReadLine()!;
+                string s = Console.ReadLine()!.ToUpper();
 
                  situacao = ValidateSituation(s);
 
@@ -151,30 +153,29 @@ namespace Application
 
             Clientes.Add(cliente);
 
+            Console.Clear();
+
         }
-        public bool ValidateCPF(string cpf)
+        public static bool ValidateCPF(string cpf)
         {
             bool cpfValido = false;
 
-            if (cpf.Length < 11)
+            string cpfAjustado = cpf.PadLeft(11, '0');
+               
+            if (SearchCPF(cpfAjustado) is null)
             {
-                cpf.PadLeft(11, '0');
-
-                if (SearchCPF(cpf) is null)
-                {
-                    bool apenasNumero = cpf.All(char.IsDigit);
-                    if (apenasNumero)
-                        cpfValido = ValidateCpfMathematically(cpf);
-                    else
-                        Console.WriteLine("CPF deve conter apenas números");
-                }
+                bool apenasNumero = cpfAjustado.All(char.IsDigit);
+                if (apenasNumero)
+                    cpfValido = ValidateCpfMathematically(cpfAjustado);
+                else
+                    Console.WriteLine("CPF deve conter apenas números");
             }
             else
                 Console.WriteLine("CPF já cadastrado");
 
             return cpfValido;
         }
-        public bool ValidateCpfMathematically(string cpf)
+        public static bool ValidateCpfMathematically(string cpf)
         {
             char[] cpfConvertidoChar = cpf.ToCharArray();
 
@@ -203,7 +204,7 @@ namespace Application
                     {
                         validacao1 = true;
                     }
-                else if (digVerificador1 == (int.Parse(cpfConvertidoChar[9].ToString())))
+                if (digVerificador1 == (int.Parse(cpfConvertidoChar[9].ToString())))
                     validacao1 = true;
 
                 if (validacao1 == true)
@@ -221,10 +222,8 @@ namespace Application
 
                     if (digVerificador2 < 2)
                         if (cpfConvertidoChar[10] == 0)
-                        {
                             cpfValido = true;
-                        }
-                    else if (digVerificador2 == (int.Parse(cpfConvertidoChar[10].ToString())))
+                    if (digVerificador2 == (int.Parse(cpfConvertidoChar[10].ToString())))
                         cpfValido = true; 
                 }
             }
@@ -233,7 +232,7 @@ namespace Application
 
             return cpfValido;
         }
-        public string AdjustCharacterLimit(string nome, int limite)
+        public static string AdjustCharacterLimit(string nome, int limite)
 
         {
             if (string.IsNullOrEmpty(nome))
@@ -245,29 +244,32 @@ namespace Application
 
             return nome;
         }
-        public bool ValidateAge(DateOnly dataNascimento)
+        public static bool ValidateAge(DateOnly dataNascimento)
         {
             bool idadeValida = false;
 
-            if (dataNascimento > (DateOnly.FromDateTime(DateTime.Now)))
+            bool dataFutura = dataNascimento > (DateOnly.FromDateTime(DateTime.Now));
+
+            if (dataFutura)
                 Console.WriteLine("Data inválida! Data de nascimento não pode ser futura.");
+
             int maioridade = DateTime.Now.Year - dataNascimento.Year;
-            if (maioridade < 18)
+            if (maioridade < 18 && dataFutura == false)
             {
                 Console.WriteLine("\nVenda proibida para menores de 18 anos!\n");
                 idadeValida = false;
-                CreatClient();
+                ClientMenu();
             }
-            else
+            if (maioridade > 18 && dataFutura == false)
                 idadeValida = true;
 
             return idadeValida;
         }
-        public bool ValidatePhone(string telefone)
+        public static bool ValidatePhone(string telefone)
         {
             bool telefoneValido = false;
 
-            if (telefone.Length < 12 && telefone.Length > 12)
+            if (telefone.Length != 12)
                 Console.WriteLine("Telefone deve conter 3 dígitos do DDD + 9 dígitos do número");
             else
             {
@@ -279,21 +281,21 @@ namespace Application
             return telefoneValido;
         }
 
-        public int ValidateMenu(string opcao, int min, int max) 
+        public static int ValidateMenu(string opcao, int min, int max) 
         {
             int o = 0;
             bool opcaoValida = opcao.All(char.IsDigit);
             if (opcaoValida)
             {
-                o = int.Parse(opcao);
-                if (o < min && o > max)
+                opcaoValida = int.TryParse(opcao, out o);   
+                if (opcaoValida == false)
                     Console.WriteLine("Escolha uma opcao valida do menu");
             }
             
             return o;
 
         }
-        public char ValidateSituation(string situacao) 
+        public static char ValidateSituation(string situacao) 
         {
             char s;
             bool situacaoValida = char.TryParse(situacao, out s);
@@ -305,8 +307,9 @@ namespace Application
             return s;
         }
 
-        public void UpdateClient()
+        public static void UpdateClient()
         {
+            Console.Clear();
             int opcao;
             int min = 1, max = 3;
             do {
@@ -346,10 +349,10 @@ namespace Application
                     do
                     {
                         Console.WriteLine("Informe a situação do cliente: \n[A] Ativo [I] Inativo");
-                        string s = Console.ReadLine()!;
+                        string s = Console.ReadLine()!.ToUpper();
                         situacao = ValidateSituation(s);
 
-                        if(situacao == 'I' && situacao == 'A')
+                        if(situacao == 'I' || situacao == 'A')
                             pessoa.Situacao = situacao;
                             Console.WriteLine("A Situação foi atualizado com sucesso");
                     } while (situacao != 'I' && situacao != 'A');
@@ -368,26 +371,39 @@ namespace Application
             }
   
         }
-        public Customer SearchCPF(string cpf) 
+        public static void UpdateSaleDate(string cpf, DateOnly data) 
+        {
+            var pessoa = SearchCPF(cpf);
+
+            pessoa.UltimaCompra = data;
+        }
+
+        public static Customer? SearchCPF(string cpf) 
         {
             return Clientes.Find(c => c.Cpf == cpf);
         }
-        public void ListClients()
+        public static void ListClients()
         {
+            Console.Clear();
+
+            if (!Clientes.Any())
+                Console.WriteLine("\nLista Vazia!\n");
+
             foreach (var cliente in Clientes)
             {
-                Console.WriteLine(cliente.ToString());
+                Console.WriteLine(cliente.ToString() + "\n");
             }
         }
-        public int SearchClient() 
+        public static int SearchClient() 
         {
+            Console.Clear();
             Console.WriteLine("Informe o CPF para busca: ");
             string cpf = Console.ReadLine()!;
 
             int status = 0;
             var cliente = SearchCPF(cpf);
 
-            if (cpf != null || cliente is null)
+            if (cpf is null || cliente is null)
             {
                 Console.WriteLine("CPF não encontrado");
                 return status;
