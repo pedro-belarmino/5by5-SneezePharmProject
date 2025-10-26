@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Application.Classes;
+using Application.Classes.Medicamento;
+using Application.Utils.WritersAndReaders;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Application.Classes;
-using Application.Utils.WritersAndReaders;
 
 namespace Application.Classes.Production
 {
@@ -12,7 +13,7 @@ namespace Application.Classes.Production
     {
         Writer_Reader objeto = new Writer_Reader();
 
-        public List<Ingredient> Ingredients = new List<Ingredient>();
+        public static List<Ingredient> Ingredients = new List<Ingredient>();
 
         public string? Id { get; private set; }
         public string? Nome { get; private set; }
@@ -51,7 +52,7 @@ namespace Application.Classes.Production
                 string nome = line.Substring(6, 20).Trim();
                 DateOnly ultimaCompra = DateOnly.ParseExact(line.Substring(26, 8), "ddMMyyyy");
                 DateOnly dataCadastro = DateOnly.ParseExact(line.Substring(34, 8), "ddMMyyyy");
-                char situacao = line[41];
+                char situacao = line[42];
 
                 Ingredient ing = new Ingredient(id, nome, ultimaCompra, dataCadastro, situacao);
 
@@ -131,7 +132,7 @@ namespace Application.Classes.Production
 
             } while (situacao != 'A' && situacao != 'I');
 
-            Ingredient? novoIngredient = new(Id, Nome!, Data, DataCadastro, situacao);
+            Ingredient? novoIngredient = new(Id, nome, Data, DataCadastro, situacao);
 
             Ingredients.Add(novoIngredient);
 
@@ -148,9 +149,17 @@ namespace Application.Classes.Production
         {
             Console.Write("Informe o ID do Ingredient a ser encontrado: ");
             string variavel = Console.ReadLine()!;
-            var ingredienteMexido = Ingredients.Find(x => x.Id == variavel);
-            Console.WriteLine(ingredienteMexido);
-            return ingredienteMexido;
+
+            Ingredient? teste = Ingredient.Ingredients.Find(x => x.Id == variavel);
+
+            while (teste == null)
+            {
+                Console.WriteLine("ID não encontrado.");
+                variavel = Console.ReadLine()!;
+                teste = Ingredients.Find(x => x.Id == variavel);
+            }
+            Console.WriteLine(teste);
+            return teste;
         }
 
         public Ingredient UpdateIngredient()
@@ -158,11 +167,11 @@ namespace Application.Classes.Production
             Ingredient UpdatedIngredient = FindIngredient()!;
 
             Console.Write("Insira o novo nome do medicamento: ");
-            string nome = Console.ReadLine()!;
-            while (!VerificaNome(nome))
+            UpdatedIngredient.Nome = Console.ReadLine()!;
+            while (!VerificaNome(UpdatedIngredient.Nome))
             {
                 Console.WriteLine("Nome inválido, são permitidos apenas caracteres alfanuméricos. tente novamente. ");
-                nome = Console.ReadLine()!;
+                UpdatedIngredient.Nome = Console.ReadLine()!;
             }
             Console.WriteLine();
 
