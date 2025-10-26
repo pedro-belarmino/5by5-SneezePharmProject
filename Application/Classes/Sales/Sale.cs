@@ -46,7 +46,7 @@ namespace Application.Classes.Sales
         public void CreateSale()
         {
             lastId++;
-            string ID = $"{lastId:D4}";
+            string ID = $"{lastId:D5}";
             System.Console.WriteLine();
 
 
