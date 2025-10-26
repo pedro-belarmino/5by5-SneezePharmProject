@@ -23,7 +23,22 @@ namespace Application.Classes.Production
 
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Ingredient.data";
-        string fullPath = Path.Combine(diretorio, file);
+        static string fullPath = Path.Combine(diretorio, file);
+
+        public Ingredient()
+        {
+            objeto.Verificador(diretorio, fullPath);
+            PopularLista();
+        }
+
+        public Ingredient(string id, string nome, DateOnly ultimaCompra, DateOnly dataCadastro, char situacao)
+        {
+            Id = id;
+            Nome = nome;
+            UltimaCompra = ultimaCompra;
+            DataCadastro = dataCadastro;
+            this.situacao = situacao;
+        }
 
         public void PopularLista()
         {
@@ -52,20 +67,21 @@ namespace Application.Classes.Production
             }
         }
 
-        public Ingredient()
+        public void SaveFile()
         {
-            objeto.Verificador(diretorio, fullPath);
-            Console.WriteLine($"Arquivo {file} e diretório criados com sucesso.");
-            PopularLista();
-        }
+            StreamWriter writer = new StreamWriter(fullPath);
+            foreach (var ingredient in Ingredients)
+            {
+                string idFormatado = ingredient.Id!.PadRight(6);
+                string nomeFormatado = ingredient.Nome!.PadRight(20);
+                string UltimaCompraFormatado = ingredient.UltimaCompra.ToString("ddMMyyyy");
+                string DataCadastroFormatado = ingredient.DataCadastro.ToString("ddMMyyyy");
 
-        public Ingredient(string id, string nome, DateOnly ultimaCompra, DateOnly dataCadastro, char situacao)
-        {
-            Id = id;
-            Nome = nome;
-            UltimaCompra = ultimaCompra;
-            DataCadastro = dataCadastro;
-            this.situacao = situacao;
+                string dadoFinal = idFormatado + nomeFormatado + UltimaCompraFormatado + DataCadastroFormatado + ingredient.situacao;
+
+                writer.WriteLine(dadoFinal);
+            }
+            writer.Close();
         }
 
         public void CreateIngredient()
@@ -105,6 +121,12 @@ namespace Application.Classes.Production
             SaveFile();
         }
 
+        public void PrintIngredient()
+        {
+            foreach (var ingredient in Ingredients)
+                Console.WriteLine(ingredient);
+        }
+
         public Ingredient? FindIngredient()
         {
             Console.Write("Informe o ID do Ingredient a ser encontrado: ");
@@ -133,29 +155,6 @@ namespace Application.Classes.Production
 
             SaveFile();
             return UpdatedIngredient;
-        }
-
-        public void PrintIngredient()
-        {
-            foreach (var ingredient in Ingredients)
-                Console.WriteLine(ingredient);
-        }
-
-        public void SaveFile()
-        {
-            StreamWriter writer = new StreamWriter(fullPath);
-            foreach (var ingredient in Ingredients)
-            {
-                string idFormatado = ingredient.Id!.PadRight(6);
-                string nomeFormatado = ingredient.Nome!.PadRight(20);
-                string UltimaCompraFormatado = ingredient.UltimaCompra.ToString("ddMMyyyy");
-                string DataCadastroFormatado = ingredient.DataCadastro.ToString("ddMMyyyy");
-
-                string dadoFinal = idFormatado + nomeFormatado + UltimaCompraFormatado + DataCadastroFormatado + ingredient.situacao;
-
-                writer.WriteLine(dadoFinal);
-            }
-            writer.Close();
         }
 
         public override string? ToString()

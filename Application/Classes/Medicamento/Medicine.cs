@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Globalization;
 
 namespace Application.Classes.Medicamento
 {
@@ -24,12 +25,11 @@ namespace Application.Classes.Medicamento
 
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Medicine.data";
-        string fullPath = Path.Combine(diretorio, file);
+        static string fullPath = Path.Combine(diretorio, file);
 
         public Medicine()
         {
             objeto.Verificador(diretorio, fullPath);
-            Console.WriteLine($"Arquivo {file} e diretório criados com sucesso.");
             PopularListaMedicine();
         }
 
@@ -67,7 +67,7 @@ namespace Application.Classes.Medicamento
 
         public bool VerificaValorVenda(decimal valorVenda)
         {
-            if (valorVenda < 0 || valorVenda >= 10000)
+            if (valorVenda <= 0 || valorVenda >= 10000)
             {
                 return false;
             }
@@ -91,7 +91,9 @@ namespace Application.Classes.Medicamento
                 string cdb = line.Substring(0, 13).Trim();
                 string nome = line.Substring(13, 40).Trim();
                 char categoria = line[53];
-                decimal valorVenda = decimal.Parse(line.Substring(54, 7).Trim());
+
+                decimal valorVenda = decimal.Parse(line.Substring(54, 7)) / 100m;
+
                 DateOnly ultimaVenda = DateOnly.ParseExact(line.Substring(61, 8), "ddMMyyyy");
                 DateOnly dataCadastro = DateOnly.ParseExact(line.Substring(69, 8), "ddMMyyyy");
                 char situacao = line[77];
@@ -110,7 +112,10 @@ namespace Application.Classes.Medicamento
             {
                 string cdbFormatado = medicine.Cdb!.PadRight(13);
                 string nomeFormatado = medicine.Nome!.PadRight(40);
-                string valorVendaFormatado = medicine.ValorVenda.ToString("F2");
+
+                int valorInt = (int)(medicine.ValorVenda * 100);
+                string valorVendaFormatado = valorInt.ToString("D7");
+
                 string ultimaVendaFormatado = medicine.UltimaVenda.ToString("ddMMyyyy");
                 string dataCadastroFormatado = medicine.DataCadastro.ToString("ddMMyyyy");
 
@@ -121,9 +126,9 @@ namespace Application.Classes.Medicamento
             writer.Close();
         }
 
-        public override string? ToString()
+        public override string ToString()
         {
-            return $"CDB: {Cdb}, Nome: {Nome}, Categoria: {Categoria}, Valor: R${ValorVenda}, Última venda: {UltimaVenda}, Data de cadastro: {DataCadastro}, Situação: {situacao}";
+            return $"CDB: {Cdb}, Nome: {Nome}, Categoria: {Categoria}, Valor: R${ValorVenda:F2}, Última venda: {UltimaVenda:dd/MM/yyyy}, Data de cadastro: {DataCadastro:dd/MM/yyyy}, Situação: {situacao}";
         }
 
         public int CalcularDV(string codigoBase)
@@ -208,7 +213,7 @@ namespace Application.Classes.Medicamento
             Console.WriteLine();
 
             Console.Write("Informe o valor de venda: ");
-            decimal valorVenda = decimal.Parse(Console.ReadLine()!);
+            decimal valorVenda = decimal.Parse(Console.ReadLine()!, CultureInfo.InvariantCulture);
             while (!VerificaValorVenda(valorVenda))
             {
                 Console.WriteLine("Valor inválido, o valor deve estar entre 0 e 9999.99");
@@ -243,9 +248,20 @@ namespace Application.Classes.Medicamento
         {
             Console.Write("Informe o CDB do Medicamento a ser encontrado: ");
             string variavel = Console.ReadLine()!;
+            while (!VerificarCDB(variavel))
+            {
+                Console.WriteLine("CDB inválido, tente novamente.");
+                variavel = Console.ReadLine()!;
+            }
             var medicineMexido = medicines.Find(x => x.Cdb == variavel);
             Console.WriteLine(medicineMexido);
             return medicineMexido;
+        }
+
+        public bool VerificarCDB(string cdb)
+        {
+            var memedio = medicines.Find(x => x.Cdb == cdb);
+            return memedio != null;
         }
 
         public Medicine? UpdateMedicine()
@@ -253,11 +269,11 @@ namespace Application.Classes.Medicamento
             Medicine UpdatedMedicine = FindMedicine()!;
 
             Console.Write("Insira o novo nome do medicamento: ");
-            string nome = Console.ReadLine()!;
-            while (!VerificaNome(nome))
+            UpdatedMedicine.Nome = Console.ReadLine()!;
+            while (!VerificaNome(UpdatedMedicine.Nome))
             {
                 Console.WriteLine("Nome inválido, são permitidos apenas caracteres alfanuméricos. tente novamente. ");
-                nome = Console.ReadLine()!;
+                UpdatedMedicine.Nome = Console.ReadLine()!;
             }
             Console.WriteLine();
 
