@@ -14,10 +14,9 @@ namespace Application.Classes
     {
         Writer_Reader objeto = new Writer_Reader();
 
-        List<RestrictedCustomer> ClientesBloqueados = new();
-        public Customer Clientes {  get; private set; }
-        public string Cpf { get; private set; }
-        private RestrictedCustomer cliente;
+        private static List<RestrictedCustomer> ClientesBloqueados = new List<RestrictedCustomer>();
+        public Customer? Clientes {  get; private set; }
+        public string? Cpf { get; private set; }
 
 
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
@@ -38,49 +37,51 @@ namespace Application.Classes
            this.Cpf = cpf;
         }
 
-        public void RestrictionsMenu() 
+        public static void RestrictionsMenu() 
         {
             int opcao, min = 1, max = 5;
-            
-
             do
             {
-                Console.Clear();
-                Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
-                Console.WriteLine(" |            >      Restrições de Clientes      <             |");
-                Console.WriteLine(" |-------------------------------------------------------------|");
-                Console.WriteLine(" |  [ 1 ] Restringir Cliente     |  [ 2 ] Remover Restrição    |");
-                Console.WriteLine(" |  [ 3 ] Listar Restritos       |  [ 4 ] Filtrar Cliente      |");
-                Console.WriteLine(" |  [ 5 ] Voltar                 |                             |");
-                Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
-                Console.WriteLine("\nInforme a opção desejada: ");
-                string op = Console.ReadLine()!;
-                opcao = Clientes.ValidateMenu(op, min, max);
+                do
+                {
+                    Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
+                    Console.WriteLine(" |            >      Restrições de Clientes      <             |");
+                    Console.WriteLine(" |-------------------------------------------------------------|");
+                    Console.WriteLine(" |  [ 1 ] Restringir Cliente     |  [ 2 ] Remover Restrição    |");
+                    Console.WriteLine(" |  [ 3 ] Listar Restritos       |  [ 4 ] Filtrar Cliente      |");
+                    Console.WriteLine(" |  [ 5 ] Voltar                 |                             |");
+                    Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
+                    Console.WriteLine("\nInforme a opção desejada: ");
+                    string op = Console.ReadLine()!;
+                    opcao = Customer.ValidateMenu(op, min, max);
 
-            } while (opcao < min && opcao > max);
+                } while (opcao < min && opcao > max);
 
-            if (opcao == max)
-                return;
 
-            switch (opcao) 
-            {
-                case 1:
-                    BlockCustomer();
-                    break;
-                case 2:
-                    UnlockCustomer();
-                    break;
-                case 3:
-                    ListRestrictedClients();
-                    break;
-                case 4:
-                    ShowRestrictedClient();
-                    break;
-            }
+                switch (opcao)
+                {
+                    case 1:
+                        BlockCustomer();
+                        break;
+                    case 2:
+                        UnlockCustomer();
+                        break;
+                    case 3:
+                        ListRestrictedClients();
+                        break;
+                    case 4:
+                        ShowRestrictedClient();
+                        break;
+                    case 5:
+                        /*salva o arquivo*/
+                        return;
+                }
+            } while (opcao != 0);
         }
 
-        public void BlockCustomer()
+        public static void BlockCustomer()
         {
+            Console.Clear();
             string cpf;
             bool status;
             do
@@ -92,73 +93,83 @@ namespace Application.Classes
                     RestrictionsMenu();
 
                 status = SearchClientList(cpf);
-            } while (status == false || cpf != "5");
+            } while (status == false);
 
             int opcao, min = 1, max = 2;
             do
             {
                 Console.WriteLine("\nDeseja realmente restringir o cliente?\n[1] Sim [2] Não");
                 string op = Console.ReadLine()!;
-                opcao = Clientes.ValidateMenu(op, min, max);
+                opcao = Customer.ValidateMenu(op, min, max);
             } while (opcao < 1 && opcao > 2);
 
             if (opcao == 2)
                 RestrictionsMenu();
-            else
-                cliente = new RestrictedCustomer(cpf);
-                ClientesBloqueados.Add(cliente);
+            
+
+            RestrictedCustomer ClienteBloqueado = new RestrictedCustomer(cpf);
+            ClientesBloqueados.Add(ClienteBloqueado);
+
         }
 
-        public void UnlockCustomer()
+        public static void UnlockCustomer()
         {
             int opcao, min = 1, max = 2;
             string cpf;
-            bool status;
-            
-            do
+
+            Console.Clear();
+            Console.WriteLine("Informe o CPF: ");
+            Console.WriteLine("Para voltar digite 5");
+            cpf = Console.ReadLine()!;
+            var cliente = SearchRestrictedClient(cpf);
+            if (cpf == "5")
+                RestrictionsMenu();
+
+            while(cliente is null && cpf != "5")
             {
+                Console.WriteLine("Cliente não consta na lista de restrições");
                 Console.WriteLine("Informe o CPF: ");
                 Console.WriteLine("Para voltar digite 5");
                 cpf = Console.ReadLine()!;
-                if (cpf == "5")
-                    RestrictionsMenu();
+                cliente = SearchRestrictedClient(cpf);
+            }
+            if (cpf == "5")
+                RestrictionsMenu();
 
-                var cliente = SearchRestrictedClient(cpf);
-                if (cliente is null)
-                    Console.WriteLine("Cliente não consta na lista de restrições");
-                else
-                    Console.WriteLine($"{cliente.ToString()} encontrado.");
+                Console.WriteLine($"{cliente.ToString()} encontrado.");
                     
-            } while (cliente is null || cpf != "5");
-
             do
             {
                 Console.WriteLine("\nDeseja realmente remover a restrição do cliente?\n[1] Sim [2] Não");
                 string op = Console.ReadLine()!;
-                opcao = Clientes.ValidateMenu(op, min, max);
+                opcao = Customer.ValidateMenu(op, min, max);
             } while (opcao < 1 && opcao > 2);
 
             if (opcao == 2)
                 RestrictionsMenu();
             else
                 ClientesBloqueados.Remove(cliente);
+          
         }
 
-        public bool SearchClientList(string cpf)
+        public static bool SearchClientList(string cpf)
         {
             bool cpfValido = false;
-            var cliente = Clientes.SearchCPF(cpf);
+            var cliente = Customer.SearchCPF(cpf);
 
             if (cliente is null)
                 Console.WriteLine("CPF não encontrado");
             else
+            {
                 cpfValido = true;
                 Console.WriteLine(cliente.ToString());
+            }
             return cpfValido;
         }
 
-        public void ShowRestrictedClient() 
+        public static void ShowRestrictedClient() 
         {
+            Console.Clear();
             Console.WriteLine("Informe CPF: ");
             string cpf = Console.ReadLine()!;
 
@@ -174,13 +185,18 @@ namespace Application.Classes
 
         }
 
-        public RestrictedCustomer SearchRestrictedClient(string cpf) 
+        public static RestrictedCustomer? SearchRestrictedClient(string cpf) 
         {
             return ClientesBloqueados.Find(c => c.Cpf == cpf);
         }
 
-        public void ListRestrictedClients()
+        public static void ListRestrictedClients()
         {
+            Console.Clear();
+
+            if (!ClientesBloqueados.Any())
+                Console.WriteLine("\nLista Vazia!\n");
+
             foreach (var cliente in ClientesBloqueados)
             {
                 Console.WriteLine(cliente.ToString());
