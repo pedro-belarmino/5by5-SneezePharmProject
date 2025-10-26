@@ -7,8 +7,7 @@ internal class Program
 {
     private static void Main()
     {
-        Sale s = new Sale();
-        s.Menu();
+         
     }
 }
 
