@@ -23,7 +23,6 @@ namespace Application.Classes.Suppliers
         public RestrictedSupplier()
         {
             objeto.Verificador(diretorio, fullPath);
-            Console.WriteLine("Arquivo e diretório criados com sucesso.");
             PopularLista();
         }
 
@@ -43,18 +42,13 @@ namespace Application.Classes.Suppliers
             string linha;
             while ((linha = sr.ReadLine()!) != null)
             {
-                string cnpj = linha.Substring(0, 14).Trim();
+                string cnpj = linha.Trim();
 
-                Supplier fornecedor = Supplier.FiltrarFornecedorCNPJ(cnpj);
-
-                if (fornecedor != null)
+                if (!string.IsNullOrEmpty(cnpj))
                 {
-                    RestrictedSupplier fornecedorRestrito = new RestrictedSupplier(fornecedor.Cnpj);
+                    RestrictedSupplier fornecedorRestrito = new RestrictedSupplier(cnpj);
                     FornecedoresRestritos.Add(fornecedorRestrito);
                 }
-                else
-                    Console.WriteLine($"CNPJ: {cnpj} não encontrado!");
-
             }
             sr.Close();
         }
@@ -65,18 +59,28 @@ namespace Application.Classes.Suppliers
         {
             StreamWriter sw = new StreamWriter(fullPath, false);
 
-            foreach (RestrictedSupplier fornecedorRestrito in FornecedoresRestritos)
+            foreach (var fornecedorRestrito in FornecedoresRestritos)
             {
-                string linha = fornecedorRestrito.Cnpj.PadRight(14);
-                sw.WriteLine(linha);
+                sw.WriteLine(fornecedorRestrito.Cnpj);
             }
             sw.Close();
+        }
+
+
+        // Garante que a lista de Suppliers foi populada (cria um Supplier que chama PopularLista)
+        private static void SuppliersCarregados()
+        {
+            if (Supplier.Suppliers.Count == 0)
+            {
+                Supplier temp = new Supplier();
+            }
         }
 
 
         // Método: Busca o fornecedor pelo CNPJ, e retorna ele
         public static RestrictedSupplier BuscarFornecedorRestritoPorCNPJ(string cnpj)
         {
+            SuppliersCarregados();
             var fornecedorRestrito = FornecedoresRestritos.Find(c => c.Cnpj == cnpj);
 
             if (fornecedorRestrito is not null)
@@ -91,8 +95,12 @@ namespace Application.Classes.Suppliers
         // Método: Modelo de impressão dos dados do Fornecedor
         public override string ToString()
         {
+            SuppliersCarregados();
             Supplier fornecedor = Supplier.FiltrarFornecedorCNPJ(Cnpj);
-            return fornecedor.ToString();
+            if (fornecedor is not null)
+                return fornecedor.ToString();
+            else
+                return $"Fornecedor com CNPJ: {Cnpj} não encontrado.";
         }
 
 
@@ -112,11 +120,16 @@ namespace Application.Classes.Suppliers
 
 
         // Método: Imprimir lista       | Retorna uma mensagem caso a lista esteja zerada
-        public static void ListarFornecedor()
+        public static void ListarFornecedorRestritos()
         {
+            SuppliersCarregados();
             if (FornecedoresRestritos.Count == 0)
+            {
                 Console.WriteLine("Não há fornecedores restritos na lista");
+                return;
+            }
 
+            Console.WriteLine("Lista de Fornecedores Restritos:");
             foreach (var fornecedorRestrito in FornecedoresRestritos)
             {
                 Console.WriteLine(fornecedorRestrito.ToString());
@@ -129,6 +142,7 @@ namespace Application.Classes.Suppliers
         {
             Console.Write("Informe o CNPJ: ");
             string cnpj = Console.ReadLine();
+            SuppliersCarregados();
             Supplier busca = Supplier.FiltrarFornecedorCNPJ(cnpj);
 
             while (busca == null)
@@ -141,8 +155,7 @@ namespace Application.Classes.Suppliers
                 busca = Supplier.FiltrarFornecedorCNPJ(cnpj);
             }
 
-            busca.ToString();
-            Console.WriteLine("Deseja realmente adicionar o fornecedor acima à lista de restritos?");
+            Console.WriteLine("\nDeseja realmente adicionar o fornecedor acima à lista de restritos?");
             Console.Write("Digite [S] pra sim ou [N] pra não: ");
             string entrada = Console.ReadLine().ToUpper(); ;
             bool aux = char.TryParse(entrada, out char escolha);
@@ -159,12 +172,9 @@ namespace Application.Classes.Suppliers
                 RestrictedSupplier fornecedor = new RestrictedSupplier(busca.Cnpj);
                 FornecedoresRestritos.Add(fornecedor);
                 fornecedor.SalvarLista();
-                return;
             }
             else
                 Console.WriteLine("\nRegistro não efetuado!");
-            Console.Write("\nPressione Enter para prosseguir ");
-            Console.ReadLine();
         }
 
 
@@ -200,10 +210,9 @@ namespace Application.Classes.Suppliers
 
             if (escolha == 'S')
             {
-                RestrictedSupplier.FornecedoresRestritos.Remove(busca);
+                FornecedoresRestritos.Remove(busca);
                 Console.WriteLine("\nExclusão concluída com sucesso!");
-                busca.SalvarLista();
-                return;
+                new RestrictedSupplier().SalvarLista();
             }
             else
                 Console.WriteLine("\nExclusão não efetuada!");
@@ -242,12 +251,11 @@ namespace Application.Classes.Suppliers
                         DeletarFornecedorRestrito();
                         break;
                     case 3:
-                        ListarFornecedor();
+                        ListarFornecedorRestritos();
                         break;
                     case 4:
                         Console.Write("Informe o CNPJ que deseja buscar: ");
                         string cnpj = Console.ReadLine();
-                        BuscarFornecedorRestritoPorCNPJ(cnpj);
                         if (BuscarFornecedorRestritoPorCNPJ(cnpj) == null)
                             Console.WriteLine("\nCNPJ não encontrado!");
                         break;

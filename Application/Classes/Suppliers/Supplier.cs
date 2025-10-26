@@ -29,7 +29,6 @@ namespace Application
         public Supplier()
         {
             objeto.Verificador(diretorio, fullPath);
-            Console.WriteLine("Arquivo e diretório criados com sucesso.");
             PopularLista();
         }
 
