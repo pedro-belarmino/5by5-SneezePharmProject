@@ -14,9 +14,9 @@ internal class Program
 
             do
             {
-                Console.WriteLine("Escolha uma opção: ");
-                Console.WriteLine("1 - Opções de medicamento: ");
-                Console.WriteLine("2 - Opções de Princípios ativos: ");
+                Console.WriteLine("Escolha uma opÃ§Ã£o: ");
+                Console.WriteLine("1 - OpÃ§Ãµes de medicamento: ");
+                Console.WriteLine("2 - OpÃ§Ãµes de PrincÃ­pios ativos: ");
                 Console.WriteLine("3 - Sair");
                 opcao = int.Parse(Console.ReadLine()!);
 
@@ -32,7 +32,7 @@ internal class Program
                         Console.WriteLine("Encerrando programa. Obrigado!");
                         return;
                     default:
-                        Console.WriteLine("Informe uma opção válida.");
+                        Console.WriteLine("Informe uma opÃ§Ã£o vÃ¡lida.");
                         break;
                 }
 
