@@ -19,60 +19,16 @@ namespace Application.Classes.Production
         public DateOnly UltimaCompra { get; private set; }
         public DateOnly DataCadastro { get; private set; }
         public char situacao { get; private set; }
+        private int lastId = 0;
 
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Ingredient.data";
-        string fullPath = Path.Combine(diretorio, file);
-
-        public void Verificador()
-        {
-            try
-            {
-                if (!Directory.Exists(diretorio))
-                {
-                    Directory.CreateDirectory(diretorio);
-                }
-
-                if (!File.Exists(fullPath))
-                {
-                    using (StreamWriter wr = new StreamWriter(fullPath)) { }
-                    ;
-                }
-
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.StackTrace);
-                Console.WriteLine(e.Message);
-            }
-            PopularLista();
-        }
-
-        public void PopularLista()
-        {
-            StreamReader sr = new StreamReader(fullPath);
-
-            string line;
-            while ((line = sr.ReadLine()!) != null)
-            {
-                string id = line.Substring(0, 5).Trim();
-                string nome = line.Substring(5, 20).Trim();
-                DateOnly ultimaCompra = DateOnly.ParseExact(line.Substring(25, 8), "ddMMyyyy");
-                DateOnly dataCadastro = DateOnly.ParseExact(line.Substring(33, 8), "ddMMyyyy");
-                char situacao = line[41];
-
-                Ingredient ing = new Ingredient(id, nome, ultimaCompra, dataCadastro, situacao);
-
-                Ingredients.Add(ing);
-            }
-            sr.Close();
-        }
+        static string fullPath = Path.Combine(diretorio, file);
 
         public Ingredient()
         {
             objeto.Verificador(diretorio, fullPath);
-            Console.WriteLine("Arquivo e diretório criados com sucesso.");
-            Verificador();
+            PopularLista();
         }
 
         public Ingredient(string id, string nome, DateOnly ultimaCompra, DateOnly dataCadastro, char situacao)
@@ -84,21 +40,82 @@ namespace Application.Classes.Production
             this.situacao = situacao;
         }
 
+        public void PopularLista()
+        {
+            StreamReader sr = new StreamReader(fullPath);
+
+            string line;
+            while ((line = sr.ReadLine()!) != null)
+            {
+                string id = line.Substring(0, 6).Trim();
+                string nome = line.Substring(6, 20).Trim();
+                DateOnly ultimaCompra = DateOnly.ParseExact(line.Substring(26, 8), "ddMMyyyy");
+                DateOnly dataCadastro = DateOnly.ParseExact(line.Substring(34, 8), "ddMMyyyy");
+                char situacao = line[41];
+
+                Ingredient ing = new Ingredient(id, nome, ultimaCompra, dataCadastro, situacao);
+
+                Ingredients.Add(ing);
+            }
+            sr.Close();
+
+            if (Ingredients.Count > 0)
+                lastId = Ingredients.Select(x => int.Parse(x.Id!.Substring(2, 4))).Max();
+            else
+            {
+                lastId = 0;
+            }
+        }
+
+        public void SaveFile()
+        {
+            StreamWriter writer = new StreamWriter(fullPath);
+            foreach (var ingredient in Ingredients)
+            {
+                string idFormatado = ingredient.Id!.PadRight(6);
+                string nomeFormatado = ingredient.Nome!.PadRight(20);
+                string UltimaCompraFormatado = ingredient.UltimaCompra.ToString("ddMMyyyy");
+                string DataCadastroFormatado = ingredient.DataCadastro.ToString("ddMMyyyy");
+
+                string dadoFinal = idFormatado + nomeFormatado + UltimaCompraFormatado + DataCadastroFormatado + ingredient.situacao;
+
+                writer.WriteLine(dadoFinal);
+            }
+            writer.Close();
+        }
+
+        public bool VerificaNome(string nome)
+        {
+            foreach (char letra in nome)
+            {
+                if (!char.IsLetterOrDigit(letra))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public void CreateIngredient()
         {
-            Console.Write("Insira o Id do ingrediente: ");
-            string Id = Console.ReadLine()!;
+            lastId++;
+            string Id = $"AI{lastId:D4}";
             Console.WriteLine();
 
-            Console.Write("Insira o nome do ingrediente: ");
-            string Nome = Console.ReadLine()!;
+            Console.Write("Insira o nome do medicamento: ");
+            string nome = Console.ReadLine()!;
+            while (!VerificaNome(nome))
+            {
+                Console.WriteLine("Nome inválido, são permitidos apenas caracteres alfanuméricos. tente novamente. ");
+                nome = Console.ReadLine()!;
+            }
             Console.WriteLine();
 
-            Console.Write("Insira a data da última compra do ingrediente DD/MM/AAAA: ");
+            Console.Write("Insira a data da última compra do ingrediente DD-MM-AAAA: ");
             DateOnly Data = DateOnly.Parse(Console.ReadLine()!);
             Console.WriteLine();
 
-            Console.Write("Insira a Data de cadastro do ingrediente DD/MM/AAAA: ");
+            Console.Write("Insira a Data de cadastro do ingrediente DD-MM-AAAA: ");
             DateOnly DataCadastro = DateOnly.Parse(Console.ReadLine()!);
             Console.WriteLine();
 
@@ -114,11 +131,17 @@ namespace Application.Classes.Production
 
             } while (situacao != 'A' && situacao != 'I');
 
-            Ingredient novoIngredient = new(Id, Nome, Data, DataCadastro, situacao);
+            Ingredient? novoIngredient = new(Id, Nome!, Data, DataCadastro, situacao);
 
             Ingredients.Add(novoIngredient);
 
             SaveFile();
+        }
+
+        public void PrintIngredient()
+        {
+            foreach (var ingredient in Ingredients)
+                Console.WriteLine(ingredient);
         }
 
         public Ingredient? FindIngredient()
@@ -134,8 +157,14 @@ namespace Application.Classes.Production
         {
             Ingredient UpdatedIngredient = FindIngredient()!;
 
-            Console.Write("Informe o novo nome do ingrediente: ");
-            UpdatedIngredient.Nome = Console.ReadLine()!;
+            Console.Write("Insira o novo nome do medicamento: ");
+            string nome = Console.ReadLine()!;
+            while (!VerificaNome(nome))
+            {
+                Console.WriteLine("Nome inválido, são permitidos apenas caracteres alfanuméricos. tente novamente. ");
+                nome = Console.ReadLine()!;
+            }
+            Console.WriteLine();
 
             do
             {
@@ -149,29 +178,6 @@ namespace Application.Classes.Production
 
             SaveFile();
             return UpdatedIngredient;
-        }
-
-        public void PrintIngredient()
-        {
-            foreach (var ingredient in Ingredients)
-                Console.WriteLine(ingredient);
-        }
-
-        public void SaveFile()
-        {
-            StreamWriter writer = new StreamWriter(fullPath);
-            foreach (var ingredient in Ingredients)
-            {
-                string idFormatado = ingredient.Id!.PadRight(5);
-                string nomeFormatado = ingredient.Nome!.PadRight(20);
-                string UltimaCompraFormatado = ingredient.UltimaCompra.ToString("ddMMyyyy");
-                string DataCadastroFormatado = ingredient.DataCadastro.ToString("ddMMyyyy");
-
-                string dadoFinal = idFormatado + nomeFormatado + UltimaCompraFormatado + DataCadastroFormatado + ingredient.situacao;
-
-                writer.WriteLine(dadoFinal);
-            }
-            writer.Close();
         }
 
         public override string? ToString()
