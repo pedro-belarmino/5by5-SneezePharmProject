@@ -1,4 +1,5 @@
-﻿using Application.Utils.WritersAndReaders;
+
+using Application.Utils.WritersAndReaders;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,6 +26,11 @@ namespace Application.Classes.Suppliers
             objeto.Verificador(diretorio, fullPath);
             PopularLista();
         }
+
+
+//            Supplier Fornecedores = new Supplier(cnpj, razaoSocial, pais, dataAbertura, dataUltimoFornecimento, dataCadastro, situacao);
+//            Suppliers.Add(Fornecedores);
+//        }
 
 
         // Método Construtor > com o único parâmetro

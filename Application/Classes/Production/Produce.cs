@@ -144,24 +144,40 @@ namespace Application.Classes.Production
         {
             Console.Write("Informe o ID do Produce a ser encontrado: ");
             string variavel = Console.ReadLine()!;
+
             var produceMexido = Produces.Find(x => x.Id == variavel);
+
+            if (produceMexido == null)
+            {
+                Console.WriteLine("Produce não encontrado!");
+                return null;
+            }
+
             Console.WriteLine(produceMexido);
             return produceMexido;
         }
 
         private Produce UpdateProduce()
         {
-            Produce UpdatedProduce = FindProduce()!;
+            var UpdatedProduce = FindProduce();
 
-            Console.Write("informe a nova quantidade fabricada: ");
-            UpdatedProduce.Quantidade = int.Parse(Console.ReadLine()!);
-            while (!VerificaQuantidade(UpdatedProduce.Quantidade))
+            if (UpdatedProduce == null)
             {
-                Console.WriteLine("Quantidade inválida, tente novamente");
-                UpdatedProduce.Quantidade = int.Parse((Console.ReadLine()!));
+                Console.WriteLine("Não foi possivel atualizar - Produce não encontrado.");
+                return null!;
             }
 
+            Console.Write("informe a nova quantidade fabricada: ");
+            int novaQtd;
+            while (!int.TryParse(Console.ReadLine(), out novaQtd) || !VerificaQuantidade(novaQtd))
+            {
+                Console.WriteLine("Quantidade inválida, tente novamente.");
+            }
+
+            UpdatedProduce.Quantidade = novaQtd;
+
             SaveFile();
+
             return UpdatedProduce;
         }
 
@@ -206,7 +222,7 @@ namespace Application.Classes.Production
                         FindProduce();
                         break;
                     case 3:
-                        UpdateProduce();
+                        UpdateProduce();///////////// arrumar isso
                         break;
                     case 4:
                         PrintProduces();
