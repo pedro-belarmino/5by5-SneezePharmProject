@@ -3,7 +3,7 @@
 **Versão:** v1.1  
 **Módulo:** C# Básico  
 **Data de Início:** 21/10/2025  
-**Entrega:** 24/10/2025  
+**Entrega:** 27/10/2025  
 
 ---
 
