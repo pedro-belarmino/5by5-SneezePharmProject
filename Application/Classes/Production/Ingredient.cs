@@ -84,14 +84,31 @@ namespace Application.Classes.Production
             writer.Close();
         }
 
+        public bool VerificaNome(string nome)
+        {
+            foreach (char letra in nome)
+            {
+                if (!char.IsLetterOrDigit(letra))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         public void CreateIngredient()
         {
             lastId++;
             string Id = $"AI{lastId:D4}";
             Console.WriteLine();
 
-            Console.Write("Insira o nome do ingrediente: ");
-            string Nome = Console.ReadLine()!;
+            Console.Write("Insira o nome do medicamento: ");
+            string nome = Console.ReadLine()!;
+            while (!VerificaNome(nome))
+            {
+                Console.WriteLine("Nome inválido, são permitidos apenas caracteres alfanuméricos. tente novamente. ");
+                nome = Console.ReadLine()!;
+            }
             Console.WriteLine();
 
             Console.Write("Insira a data da última compra do ingrediente DD-MM-AAAA: ");
@@ -114,7 +131,7 @@ namespace Application.Classes.Production
 
             } while (situacao != 'A' && situacao != 'I');
 
-            Ingredient novoIngredient = new(Id, Nome, Data, DataCadastro, situacao);
+            Ingredient? novoIngredient = new(Id, Nome!, Data, DataCadastro, situacao);
 
             Ingredients.Add(novoIngredient);
 
@@ -140,8 +157,14 @@ namespace Application.Classes.Production
         {
             Ingredient UpdatedIngredient = FindIngredient()!;
 
-            Console.Write("Informe o novo nome do ingrediente: ");
-            UpdatedIngredient.Nome = Console.ReadLine()!;
+            Console.Write("Insira o novo nome do medicamento: ");
+            string nome = Console.ReadLine()!;
+            while (!VerificaNome(nome))
+            {
+                Console.WriteLine("Nome inválido, são permitidos apenas caracteres alfanuméricos. tente novamente. ");
+                nome = Console.ReadLine()!;
+            }
+            Console.WriteLine();
 
             do
             {
