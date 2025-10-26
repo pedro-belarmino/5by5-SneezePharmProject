@@ -64,6 +64,9 @@ namespace Application.Classes.Sales
 
             Sales.Add(newSale);
             SaveFile();
+
+
+
         }
 
 
