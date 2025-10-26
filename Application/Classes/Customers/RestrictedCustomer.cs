@@ -12,30 +12,64 @@ namespace Application.Classes
     public class RestrictedCustomer
 
     {
-        Writer_Reader objeto = new Writer_Reader();
+        Writer_Reader objeto = new ();
 
-        private static List<RestrictedCustomer> ClientesBloqueados = new List<RestrictedCustomer>();
+        private static List<RestrictedCustomer> ClientesBloqueados = new ();
         public Customer? Clientes {  get; private set; }
         public string? Cpf { get; private set; }
 
 
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "RestrictedCustomers.data ";
-        string fullPath = Path.Combine(diretorio, file);
+        static string fullPath = Path.Combine(diretorio, file);
 
         public RestrictedCustomer()
         {
             string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
+            string file = "RestrictedCustomers.data ";
             string fullPath = Path.Combine(diretorio, file);
-
             objeto.Verificador(diretorio, fullPath);
-            Console.WriteLine("Arquivo e diretório criados com sucesso.");
-
+            PopularLista();
         }
         public RestrictedCustomer(string cpf) 
         {
            this.Cpf = cpf;
         }
+
+
+
+        private void PopularLista()
+        {
+            StreamReader sr = new(fullPath);
+
+            string line;
+
+            while ((line = sr.ReadLine()!) != null)
+            {
+                string cpf = line.Substring(0, 11).Trim();
+
+                RestrictedCustomer clienteBloqueado = new(cpf);
+                ClientesBloqueados.Add(clienteBloqueado);
+            }
+            sr.Close();
+
+        }
+
+        private static void SaveFile()
+        {
+            StreamWriter writer = new(fullPath);
+
+            foreach (var cpf in ClientesBloqueados)
+            {
+                string cpfFormatado = cpf.Cpf!;
+
+                writer.WriteLine(cpfFormatado);
+                
+            }
+            writer.Close();
+        }
+
+
 
         public static void RestrictionsMenu() 
         {
@@ -73,7 +107,7 @@ namespace Application.Classes
                         ShowRestrictedClient();
                         break;
                     case 5:
-                        /*salva o arquivo*/
+                        SaveFile();
                         return;
                 }
             } while (opcao != 0);
@@ -109,6 +143,7 @@ namespace Application.Classes
 
             RestrictedCustomer ClienteBloqueado = new RestrictedCustomer(cpf);
             ClientesBloqueados.Add(ClienteBloqueado);
+            SaveFile();
 
         }
 
@@ -149,7 +184,8 @@ namespace Application.Classes
                 RestrictionsMenu();
             else
                 ClientesBloqueados.Remove(cliente);
-          
+
+            SaveFile();
         }
 
         public static bool SearchClientList(string cpf)
@@ -208,9 +244,5 @@ namespace Application.Classes
             return $"CPF: {Cpf}";
         }
 
-        public string ToFile() 
-        {
-            return Cpf;
-        }
     }
 }

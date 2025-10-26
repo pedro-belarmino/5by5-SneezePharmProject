@@ -1,6 +1,7 @@
 ﻿using Application.Utils.WritersAndReaders;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -11,8 +12,8 @@ namespace Application
 {
     public class Customer
     {
-        Writer_Reader objeto = new Writer_Reader();
-        public static List<Customer> Clientes = new List<Customer>();
+        Writer_Reader objeto = new();
+        public static List<Customer> Clientes = new ();
         public string? Cpf { get; private set; }
         public string? Nome { get; private set; }
         public DateOnly DataNascimento { get; private set; }
@@ -23,18 +24,15 @@ namespace Application
 
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Customers.data";
-        string fullPath = Path.Combine(diretorio, file);
-
-        /*TRATAR A OPÇÃO 5 DO MENU PARA ADICIONAR TUDO NO ARQUIVO ANTES DE FECHAR*/
+        static string fullPath = Path.Combine(diretorio, file);
 
         public Customer() 
         {
             string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
+            string file = "Customers.data";
             string fullPath = Path.Combine(diretorio, file);
-
             objeto.Verificador(diretorio, fullPath);
-            Console.WriteLine("Arquivo e diretório criados com sucesso.");
-
+            PopularLista();
         }
 
         public Customer(string cpf, string nome, DateOnly dataNascimento, string telefone, DateOnly? ultimaCompra, DateOnly dataCadastro, char situacao)
@@ -46,6 +44,56 @@ namespace Application
             UltimaCompra = null;
             DataCadastro = dataCadastro;
             Situacao = situacao;
+        }
+
+
+        private void PopularLista()
+        {
+            StreamReader sr = new(fullPath);
+
+            string line;
+
+            while ((line = sr.ReadLine()!) != null)
+            {
+                string cpf = line.Substring(0, 11).Trim();
+                string nome = line.Substring(11, 50);
+                DateOnly dataNascimento = DateOnly.ParseExact(line.Substring(61, 8), "ddMMyyyy");
+                string telefone = line.Substring(69, 12).Trim();
+                string ultimaCompraString = line.Substring(81, 8).Trim();
+                DateOnly? ultimaCompra;
+                if (string.IsNullOrEmpty(ultimaCompraString))
+                    ultimaCompra = null;
+                else
+                    ultimaCompra = DateOnly.ParseExact(ultimaCompraString, "ddMMyyyy");
+                DateOnly dataCadastro = DateOnly.ParseExact(line.Substring(89, 8), "ddMMyyyy");
+                char situacao = line[97];
+
+                Customer cliente = new(cpf, nome, dataNascimento, telefone, ultimaCompra, dataCadastro, situacao);
+                Clientes.Add(cliente);
+            }
+            sr.Close();
+
+        }
+
+        private static void SaveFile() 
+        {
+            StreamWriter writer = new(fullPath);
+
+            foreach(Customer cliente in Clientes) 
+            {
+                string ultimaCompraFormatada = cliente.UltimaCompra.HasValue ? cliente.UltimaCompra.Value.ToString("ddMMyyyy") : new string(' ', 8);
+
+                string linha = cliente.Cpf! +
+                                cliente.Nome +
+                                cliente.DataNascimento.ToString("ddMMyyyy") +
+                                cliente.Telefone +
+                                ultimaCompraFormatada +
+                                cliente.DataCadastro.ToString("ddMMyyyy") +
+                                cliente.Situacao.ToString();
+
+                writer.WriteLine(linha);
+            }
+            writer.Close();
         }
 
 
@@ -87,7 +135,7 @@ namespace Application
                             ClientMenu();
                         break;
                     case 5:
-                        /*SALVAR ARQUIVO AQUI*/
+                        SaveFile();
                         return;
                 }
             } while (opcao != 5);
@@ -152,6 +200,7 @@ namespace Application
             Customer cliente = new Customer(cpf, nome, dataNascimento, telefone, ultimaCompra, dataCadastro, situacao);
 
             Clientes.Add(cliente);
+            SaveFile();
 
             Console.Clear();
 
@@ -355,6 +404,7 @@ namespace Application
                         if(situacao == 'I' || situacao == 'A')
                             pessoa.Situacao = situacao;
                             Console.WriteLine("A Situação foi atualizado com sucesso");
+                        SaveFile();
                     } while (situacao != 'I' && situacao != 'A');
                     break;
                 case 2:
@@ -366,6 +416,7 @@ namespace Application
                         if(telefoneValido)
                             pessoa.Telefone = t;
                             Console.WriteLine("O telefone foi atualizado com sucesso");
+                        SaveFile();
                     } while (telefoneValido == false);
                     break;
             }
@@ -423,9 +474,6 @@ namespace Application
                     $"\nData de cadastro: {DataCadastro}" +
                     $"\nSituação: {Situacao}";
         }
-        public string ToFile()
-        {
-            return $"{Cpf}{Nome}{DataNascimento}{Telefone}{UltimaCompra}{DataCadastro}{Situacao}";
-        }
+        
     }
 }
