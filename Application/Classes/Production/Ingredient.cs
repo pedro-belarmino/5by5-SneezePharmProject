@@ -24,29 +24,6 @@ namespace Application.Classes.Production
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Ingredient.data";
         string fullPath = Path.Combine(diretorio, file);
-        //****************************** olhar aqui, está reduntante com outra parte.
-        public void Verificador()
-        {
-            try
-            {
-                if (!Directory.Exists(diretorio))
-                {
-                    Directory.CreateDirectory(diretorio);
-                }
-
-                if (!File.Exists(fullPath))
-                {
-                    using (StreamWriter wr = new StreamWriter(fullPath)) { }
-                    ;
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.StackTrace);
-                Console.WriteLine(e.Message);
-            }
-            PopularLista();
-        }
 
         public void PopularLista()
         {
@@ -76,10 +53,10 @@ namespace Application.Classes.Production
         }
 
         public Ingredient()
-        {   //***************** aqui a outra bomba.
+        {
             objeto.Verificador(diretorio, fullPath);
             Console.WriteLine($"Arquivo {file} e diretório criados com sucesso.");
-            Verificador();
+            PopularLista();
         }
 
         public Ingredient(string id, string nome, DateOnly ultimaCompra, DateOnly dataCadastro, char situacao)
@@ -169,7 +146,7 @@ namespace Application.Classes.Production
             StreamWriter writer = new StreamWriter(fullPath);
             foreach (var ingredient in Ingredients)
             {
-                string idFormatado = ingredient.Id!.PadRight(5);
+                string idFormatado = ingredient.Id!.PadRight(6);
                 string nomeFormatado = ingredient.Nome!.PadRight(20);
                 string UltimaCompraFormatado = ingredient.UltimaCompra.ToString("ddMMyyyy");
                 string DataCadastroFormatado = ingredient.DataCadastro.ToString("ddMMyyyy");
