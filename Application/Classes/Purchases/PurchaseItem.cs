@@ -28,6 +28,21 @@ namespace Application.Compra
         string fullPath = Path.Combine(diretorio, file);
 
 
+        public string GerarIdUnico()
+        {
+            Random random = new Random();
+            string novoId;
+
+            do
+            {
+                novoId = random.Next(0, 100000).ToString("D5");
+            }
+            // Repete se o ID ja tiver na lista
+            while (PurchaseItems.Any(x => x.Id == novoId));
+
+            return novoId;
+        }
+
         public void Verificador()
         {
             try
@@ -62,8 +77,8 @@ namespace Application.Compra
                 string? line;
                 while ((line = sr.ReadLine()) != null)
                 {
-                    if (string.IsNullOrWhiteSpace(line))
-                        continue;
+                    if (string.IsNullOrWhiteSpace(line))    //verifica se a string é null,vazia ou tem caracteres de espaço em branco
+                        continue;                           //pule para a próx iteração
 
                     string id = line.Substring(0, 5).Trim();
                     string nome = line.Substring(5, 25).Trim();
@@ -75,7 +90,9 @@ namespace Application.Compra
                     //tratanto inteiro para string
                     int quantidade = int.TryParse(quantidadeStr, out int q) ? q : 0;
                     //tratando decimal para string
-                    decimal valorUnitario = decimal.TryParse(valorUnitarioStr, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out decimal vu) ? vu : 0m;
+                    decimal valorUnitario = decimal.TryParse(valorUnitarioStr,
+                        System.Globalization.NumberStyles.Any, System.Globalization.
+                        CultureInfo.InvariantCulture, out decimal vu) ? vu : 0m;
 
                     PurchaseItem purchase = new PurchaseItem(id, nome, idIngrediente, quantidade, valorUnitario);
                     PurchaseItems.Add(purchase);
@@ -107,17 +124,39 @@ namespace Application.Compra
 
         public void CreatePurchaseItem()
         {
-            Console.Write("Insira o Id: ");
-            string Id = Console.ReadLine()!;
+            string Id = GerarIdUnico();
+            Console.WriteLine("ID gerado: " + Id);
             Console.WriteLine();
 
             Console.Write("Insira o nome do item: ");
             string Nome = Console.ReadLine()!;
             Console.WriteLine();
 
+
+            //integrando classe ingredient
             Console.Write("Insira o id do ingrediente: ");
             string IdIngrediente = Console.ReadLine()!;
             Console.WriteLine();
+
+            // Instancia a classe Ingredient e carrega a lista
+            Ingredient buscandoIngrediente = new Ingredient();
+            buscandoIngrediente.Verificador();
+
+            // Busca o ingrediente correspondente
+            var ingrediente = buscandoIngrediente.Ingredients.Find(i => i.Id == IdIngrediente);
+
+            if (ingrediente == null)
+            {
+                Console.WriteLine("Ingrediente não encontrado. Operação cancelada.");
+                return;
+            }
+
+            if (ingrediente.situacao == 'I')
+            {
+                Console.WriteLine($" O ingrediente '{ingrediente.Nome}' está inativo e não pode ser usado em compras.");
+                return;
+            }
+
 
             Console.Write("Insira a quantidade de itens: ");
             int Quantidade = int.Parse(Console.ReadLine());
@@ -127,7 +166,7 @@ namespace Application.Compra
             decimal ValorUnitario = decimal.Parse(Console.ReadLine());
             Console.WriteLine();
 
-            //**Total item
+            ////////////////////////////////////////////////////**Total item
 
             PurchaseItem NovoPurchaseItem = new(Id, Nome, IdIngrediente, Quantidade, ValorUnitario); //TotalItem);
 
@@ -175,12 +214,12 @@ namespace Application.Compra
             {
                 string idFormatado = purchaseItem.Id!.PadRight(5);
                 string nomeFormatado = purchaseItem.Nome!.PadRight(20);
-                string IdIngredienteFormatado = purchaseItem.IdIngrediente.ToString();
+                string idIngredienteFormatado = purchaseItem.IdIngrediente.ToString();
                 string quantidadeFormatado = purchaseItem.Quantidade.ToString("D4").PadLeft(4);
                 string valorUnitarioFormatado = purchaseItem.ValorUnitario.ToString("F2").PadLeft(8); // 999.99
                 string totalItemFormatado = purchaseItem.TotalItem.ToString("F2").PadLeft(8);         // 99999.99
 
-                string dadoFinal = idFormatado + nomeFormatado + IdIngredienteFormatado; //QuantidadeFormatado + ValorUnitarioFormatado + TotalItemFormatado
+                string dadoFinal = idFormatado + nomeFormatado + idIngredienteFormatado + quantidadeFormatado + valorUnitarioFormatado + totalItemFormatado;
 
                 writer.WriteLine(dadoFinal);
             }
@@ -189,7 +228,7 @@ namespace Application.Compra
 
         public override string ToString()
         {
-            return $"ID: {Id}, Nome: {Nome}, IdIngrediente: {IdIngrediente}"; //Quantidade ValorUnitario TotalItem
+            return $"ID: {Id}, Nome: {Nome}  IdIngrediente:  {IdIngrediente} Quantidade: {Quantidade}  ValorUnitario: {ValorUnitario}  TotalItem: {TotalItem:2}";
         }
 
         public void PurchaseItemMenu()

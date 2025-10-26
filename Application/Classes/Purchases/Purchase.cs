@@ -1,33 +1,284 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Globalization;
+using System.IO;
+using Application.Compra; 
+using Application.Classes.Production;
+using Application.Utils.WritersAndReaders;
 
-
-namespace Application.Classes.Purchase
+namespace Application.Classes
 {
-    public class Purchases
+    public class Purchase
     {
-        public int Id { get; set; }    // 5 dígitos
-        public DateOnly DataCompra { get; set; }
-        public string RecebeFornecedor { get; set; }
-        public decimal ValorTotal { get; set; }
+        Writer_Reader objeto = new Writer_Reader();
 
-        // Construtor
-        public Purchases(int id, DateOnly dataCompra, string recebeFornecedor, decimal valorTotal)
+        public List<Purchase> Purchases = new List<Purchase>();
+
+        //"carrinho de compra"
+        private List<PurchaseItem> ItensDaCompra = new List<PurchaseItem>();
+
+        public string Id { get; private set; }
+        public DateOnly DataCompra { get; private set; }
+        public string CnpjFornecedor { get; private set; }
+        public decimal ValorTotal { get; private set; }
+
+        static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
+        static string file = "Purchase.data";
+        string fullPath = Path.Combine(diretorio, file);
+
+        public Purchase()
         {
-            // Validação para o Id
-            if (id < 10000 || id > 99999)
-                Console.WriteLine("Id deve ter 5 dígitos");
+            objeto.Verificador(diretorio, fullPath);
+            Console.WriteLine("Arquivo e diretório verificados com sucesso.");
+            Verificador();
+        }
 
+        public Purchase(string id, DateOnly dataCompra, string cnpjFornecedor, decimal valorTotal)
+        {
             Id = id;
             DataCompra = dataCompra;
-            RecebeFornecedor = recebeFornecedor;
+            CnpjFornecedor = cnpjFornecedor;
             ValorTotal = valorTotal;
+        }
 
 
+        public void Verificador()
+        {
+            try
+            {
+                if (!Directory.Exists(diretorio))
+                    Directory.CreateDirectory(diretorio);
+
+                if (!File.Exists(fullPath))
+                    using (StreamWriter wr = new StreamWriter(fullPath)) { }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                Console.WriteLine(e.Message);
+            }
+            PopularLista();
+        }
+
+
+        public string GerarIdUnico()
+        {
+            Random random = new Random();
+            string novoId;
+            do
+            {
+                novoId = random.Next(0, 99999).ToString("D5");
+            } while (Purchases.Exists(p => p.Id == novoId));
+
+            return novoId;
+        }
+
+
+
+        public void PopularLista()
+        {
+            if (!File.Exists(fullPath))
+                return;
+
+            using (StreamReader sr = new StreamReader(fullPath))
+            {
+                string? line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (string.IsNullOrWhiteSpace(line))
+                        continue;
+
+                    string id = line.Substring(0, 5).Trim();
+                    string dataStr = line.Substring(5, 13).Trim();
+                    string cnpj = line.Substring(13, 27).Trim();
+                    string valorTotalStr = line.Substring(27, 38).Trim();
+
+                    DateOnly dataCompra = DateOnly.ParseExact(dataStr, "ddMMyyyy");
+                    decimal valorTotal = decimal.TryParse(valorTotalStr, NumberStyles.Any,
+                        CultureInfo.InvariantCulture, out decimal vt) ? vt : 0m;
+
+                    Purchase p = new Purchase(id, dataCompra, cnpj, valorTotal);
+                    Purchases.Add(p);
+                }
+            }
+        }
+
+        public void CreatePurchase()
+        {
+            Supplier fornecedor = new Supplier();   ///////////////////////////////////////////
+
+            Console.Write("Informe o CNPJ do fornecedor: ");
+            string cnpj = Console.ReadLine()!;
+
+            var fornecedorExistente = Supplier.Suppliers.Find(f => f.Cnpj == cnpj);
+
+            if (fornecedorExistente == null)
+            {
+                Console.WriteLine("Fornecedor não encontrado. Compra cancelada.");
+                return;
+            }
+
+            if (fornecedorExistente.Situacao != 'A')
+            {
+                Console.WriteLine("Fornecedor está inativo. Compra cancelada.");
+                return;
+            }
+
+            string novoId = GerarIdUnico();
+            DateOnly dataCompra = DateOnly.FromDateTime(DateTime.Now);
+
+            Console.WriteLine("\n--- Adicione até 3 itens à compra ---");
+            PurchaseItem purchaseItem = new PurchaseItem();
+
+            int contador = 0;
+            while (contador < 3)
+            {
+                Console.Write("Deseja adicionar um item? (S/N): ");
+                string opc = Console.ReadLine()!.ToUpper();
+                if (opc != "S") break;
+
+                purchaseItem.CreatePurchaseItem();
+                var ultimoItem = purchaseItem.PurchaseItems.LastOrDefault();
+                if (ultimoItem != null)
+                {
+                    ItensDaCompra.Add(ultimoItem);
+                    contador++;
+                }
+            }
+
+            if (ItensDaCompra.Count == 0)
+            {
+                Console.WriteLine("Nenhum item adicionado. Compra cancelada.");
+                return;
+            }
+
+            decimal valorTotal = 0;
+            foreach (var item in ItensDaCompra)
+                valorTotal += item.TotalItem;
+
+            if (valorTotal >= 100000000m)
+            {
+                Console.WriteLine("Valor total excede o limite permitido (máx. 11 dígitos).");
+                return;
+            }
+
+            fornecedorExistente.UltimoFornecimento = dataCompra;    //////////////////////////
+
+            Purchase novaCompra = new Purchase(novoId, dataCompra, cnpj, valorTotal);
+            Purchases.Add(novaCompra);
+
+            SaveFile();
+            Console.WriteLine("Compra criada com sucesso!");
+        }
+
+        public Purchase? FindPurchase()
+        {
+            Console.Write("Informe o ID da compra: ");
+            string id = Console.ReadLine()!;
+            var compra = Purchases.Find(p => p.Id == id);
+            if (compra == null)
+                Console.WriteLine("Compra não encontrada.");
+            else
+                Console.WriteLine(compra);
+            return compra;
+        }
+
+        public void UpdatePurchase()
+        {
+            var compra = FindPurchase();
+            if (compra == null) return;
+
+            Console.WriteLine("Deseja adicionar ou remover itens? (A/R): ");
+            string opc = Console.ReadLine()!.ToUpper();
+
+            if (opc == "A" && ItensDaCompra.Count < 3)
+            {
+                PurchaseItem handler = new PurchaseItem();
+                handler.CreatePurchaseItem();
+                var novoItem = handler.PurchaseItems.LastOrDefault();
+                if (novoItem != null)
+                    ItensDaCompra.Add(novoItem);
+            }
+            else if (opc == "R")
+            {
+                Console.Write("Informe o ID do item a remover: ");
+                string idItem = Console.ReadLine()!;
+                var item = ItensDaCompra.Find(i => i.Id == idItem);
+                if (item != null)
+                    ItensDaCompra.Remove(item);
+            }
+
+            compra.ValorTotal = ItensDaCompra.Sum(i => i.TotalItem);
+            SaveFile();
+        }
+
+
+
+        public void PrintPurchases()
+        {
+            foreach (var compra in Purchases)
+                Console.WriteLine(compra);
+        }
+
+
+
+        public void SaveFile()
+        {
+            using (StreamWriter writer = new StreamWriter(fullPath))
+            {
+                foreach (var compra in Purchases)
+                {
+                    string idFormatado = compra.Id.PadRight(5);
+                    string dataFormatada = compra.DataCompra.ToString("ddMMyyyy");
+                    string cnpjFormatado = compra.CnpjFornecedor.PadRight(14);
+                    string valorTotalFormatado = compra.ValorTotal.ToString("F2", CultureInfo.InvariantCulture).PadLeft(11);
+
+                    string linha = idFormatado + dataFormatada + cnpjFormatado + valorTotalFormatado;
+                    writer.WriteLine(linha);
+                }
+            }
+        }
+
+        public override string ToString()
+        {
+            return $"ID: {Id}, Data: {DataCompra:dd/MM/yyyy}, Fornecedor: {CnpjFornecedor}, Valor Total: {ValorTotal:F2}";
+        }
+        public void PurchaseMenu()
+        {
+            int opcao;
+            do
+            {
+                Console.WriteLine("\nMENU DE COMPRAS");
+                Console.WriteLine("1 - Criar nova compra");
+                Console.WriteLine("2 - Encontrar compra");
+                Console.WriteLine("3 - Atualizar compra");
+                Console.WriteLine("4 - Listar todas as compras");
+                Console.WriteLine("5 - Sair");
+                Console.Write("Escolha uma opção: ");
+                opcao = int.Parse(Console.ReadLine()!);
+
+                switch (opcao)
+                {
+                    case 1:
+                        CreatePurchase();
+                        break;
+                    case 2:
+                        FindPurchase();
+                        break;
+                    case 3:
+                        UpdatePurchase();
+                        break;
+                    case 4:
+                        PrintPurchases();
+                        break;
+                    case 5:
+                        SaveFile();
+                        return;
+                    default:
+                        Console.WriteLine("Opção inválida.");
+                        break;
+                }
+            } while (opcao != 5);
         }
     }
-
 }
