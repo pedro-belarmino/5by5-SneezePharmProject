@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Application.Utils.WritersAndReaders;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -10,7 +11,9 @@ namespace Application
 {
     public class Customer
     {
-        public List<Customer> Clientes { get; set; } = new();
+        Writer_Reader objeto = new Writer_Reader();
+
+        public List<Customer> Clientes = new List<Customer>();
         public string Cpf { get; private set; }
         public string Nome { get; private set; }
         public DateOnly DataNascimento { get; private set; }
@@ -18,6 +21,20 @@ namespace Application
         public DateOnly? UltimaCompra { get; private set; }
         public DateOnly DataCadastro { get; private set; }
         public char Situacao { get; private set; }
+
+        static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
+        static string file = "Customers.data";
+        string fullPath = Path.Combine(diretorio, file);
+
+        public Customer() 
+        {
+            string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
+            string fullPath = Path.Combine(diretorio, file);
+
+            objeto.Verificador(diretorio, fullPath);
+            Console.WriteLine("Arquivo e diretório criados com sucesso.");
+
+        }
 
         public Customer(string cpf, string nome, DateOnly dataNascimento, string telefone, DateOnly? ultimaCompra, DateOnly dataCadastro, char situacao)
         {
