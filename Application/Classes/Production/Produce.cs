@@ -10,7 +10,7 @@ namespace Application.Classes.Production
     {
         Writer_Reader objeto = new();
 
-        public List<Produce> Produces = [];
+        public static List<Produce> Produces = [];
 
         public string? Id { get; private set; }
         public DateOnly DataProducao { get; private set; }
@@ -155,6 +155,11 @@ namespace Application.Classes.Production
 
             Console.Write("informe a nova quantidade fabricada: ");
             UpdatedProduce.Quantidade = int.Parse(Console.ReadLine()!);
+            while (!VerificaQuantidade(UpdatedProduce.Quantidade))
+            {
+                Console.WriteLine("Quantidade inválida, tente novamente");
+                UpdatedProduce.Quantidade = int.Parse((Console.ReadLine()!));
+            }
 
             SaveFile();
             return UpdatedProduce;
@@ -175,7 +180,8 @@ namespace Application.Classes.Production
 
         public override string? ToString()
         {
-            return $"ID: {Id:D5}, Data de produção: {DataProducao}, CDB correspondente: {MedicineCdb}, Quantidade fabricada: {Quantidade:D3}";
+            string idFormatado = Id != null ? Id.PadLeft(5, '0') : "0000";
+            return $"ID: {idFormatado}, Data de produção: {DataProducao}, CDB correspondente: {MedicineCdb}, Quantidade fabricada: {Quantidade:D3}";
         }
 
         public void ProduceMenu()

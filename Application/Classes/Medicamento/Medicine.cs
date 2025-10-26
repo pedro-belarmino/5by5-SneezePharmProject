@@ -13,7 +13,7 @@ namespace Application.Classes.Medicamento
     {
         Writer_Reader objeto = new Writer_Reader();
 
-        public static List<Medicine> medicines = new List<Medicine>();
+        public static List<Medicine> medicines = [];
 
         public string? Cdb { get; private set; }
         public string? Nome { get; private set; }
