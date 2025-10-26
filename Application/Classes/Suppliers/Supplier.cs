@@ -10,7 +10,7 @@ namespace Application
 {
     public class Supplier
     {
-        Writer_Reader objeto = new Writer_Reader();     // objeto para criar oo arquivo
+        Writer_Reader objeto = new Writer_Reader();     // objeto para criar o arquivo
         public static List<Supplier> Suppliers  = new List<Supplier>();
         public string Cnpj { get; private set; }
         public string RazaoSocial { get; private set; }
@@ -25,7 +25,7 @@ namespace Application
         static string file = "Suppliers.data";
         string fullPath = Path.Combine(diretorio, file);
 
-        // Método Construtor: Criando o arquivo (caso não exista), e popularizando o conforme os parâmetos, e tamanhos determinados
+        // Método Construtor: Criando o arquivo (caso não exista), e popularizando conforme os parâmetos, e tamanhos determinados
         public Supplier()
         {
             objeto.Verificador(diretorio, fullPath);
@@ -46,7 +46,7 @@ namespace Application
         }
 
 
-        // Método: Popular a lista (Leiutura do arquivo) > aplicando os parâmetros do Fornecedor, e tamanhos pré-estipulados
+        // Método: Popular a lista (Leiutura do arquivo) > aplicando os parâmetros do Fornecedor, e tamanhos pré-estipulados + formato de data
         public void PopularLista()
         {
             StreamReader sr = new StreamReader(fullPath);
@@ -73,7 +73,6 @@ namespace Application
                 char situacao = linha[108];
 
                 Supplier fornecedor = new Supplier(cnpj, razaoSocial, pais, abertura, ultimoFornecimento, dataCadastro, situacao);
-
                 Suppliers.Add(fornecedor);
             }
             sr.Close();

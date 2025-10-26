@@ -109,7 +109,7 @@ namespace Application.Classes.Suppliers
         {
             if (escolha is not 'S' && escolha is not 'N')
             {
-                Console.Write("\nInválido! Digite apenas [S] ou [N].");
+                Console.Write("\nInválido! Digite apenas [S] ou [N]: ");
                 return false;
             }
             else
@@ -132,7 +132,7 @@ namespace Application.Classes.Suppliers
             Console.WriteLine("Lista de Fornecedores Restritos:");
             foreach (var fornecedorRestrito in FornecedoresRestritos)
             {
-                Console.WriteLine(fornecedorRestrito.ToString());
+                fornecedorRestrito.ToString();
             }
         }
 
@@ -155,14 +155,13 @@ namespace Application.Classes.Suppliers
                 busca = Supplier.FiltrarFornecedorCNPJ(cnpj);
             }
 
-            Console.WriteLine("\nDeseja realmente adicionar o fornecedor acima à lista de restritos?");
+            Console.WriteLine("\nDeseja realmente adicionar o fornecedor à lista de restritos?");
             Console.Write("Digite [S] pra sim ou [N] pra não: ");
             string entrada = Console.ReadLine().ToUpper(); ;
             bool aux = char.TryParse(entrada, out char escolha);
             while (ValidarEscolha(escolha) == false)
             {
-                Console.Write("Tente novamente: ");
-                entrada = Console.ReadLine();
+                entrada = Console.ReadLine().ToUpper();
                 aux = char.TryParse(entrada, out escolha);
             }
 
@@ -196,15 +195,13 @@ namespace Application.Classes.Suppliers
                 busca = BuscarFornecedorRestritoPorCNPJ(cnpj);
             }
 
-            Console.WriteLine(busca.ToString());
             Console.WriteLine("Tem certeza de que deseja excluir o fornecedor da lista de restritos?");
             Console.Write("Digite [S] pra sim ou [N] pra não: ");
             string entrada = Console.ReadLine().ToUpper();
             bool aux = char.TryParse(entrada, out char escolha);
             while (ValidarEscolha(escolha) == false)
             {
-                Console.Write("Tente novamente: ");
-                entrada = Console.ReadLine();
+                entrada = Console.ReadLine().ToUpper();
                 aux = char.TryParse(entrada, out escolha);
             }
 
@@ -216,8 +213,6 @@ namespace Application.Classes.Suppliers
             }
             else
                 Console.WriteLine("\nExclusão não efetuada!");
-            Console.Write("\nPressione Enter para prosseguir ");
-            Console.ReadLine();
         }
 
 
