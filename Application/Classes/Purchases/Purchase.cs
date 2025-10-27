@@ -109,8 +109,6 @@ namespace Application.Classes
             Console.Write("Informe o CNPJ do fornecedor: ");
             string cnpj = Console.ReadLine()!;
 
-
-
             //verifica se fornecedor esta bloqueado
             new RestrictedSupplier();
             bool bloqueado = RestrictedSupplier.FornecedoresRestritos.Any(f => f.Cnpj.Trim() == cnpj);
@@ -144,10 +142,22 @@ namespace Application.Classes
                 return;
             }
 
+            PurchaseItem itensCompra = new PurchaseItem();  
+            itensCompra.Verificador();                   
+            Console.WriteLine("\n Itens disponíveis para compra: ");
+
+            if (itensCompra.PurchaseItems.Count > 0)
+            {
+                itensCompra.PrintPurchaseItem();            
+            }
+            else
+            {
+                Console.WriteLine("Nenhum item de compra foi encontrado.");
+            }
             string novoId = GerarIdUnico();
             DateOnly dataCompra = DateOnly.FromDateTime(DateTime.Now);
 
-            Console.WriteLine("\n--- Adicione até 3 itens à compra ---");
+            Console.WriteLine("\n Adicione até 3 itens à compra ");
             PurchaseItem purchaseItem = new PurchaseItem();
 
             int contador = 0;

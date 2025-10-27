@@ -132,6 +132,13 @@ namespace Application.Compra
             string Nome = Console.ReadLine()!;
             Console.WriteLine();
 
+            Console.WriteLine("Ingredientes disponíveis:");
+            Console.WriteLine();
+
+            Ingredient ingredient = new Ingredient();
+            foreach (var item in Ingredient.Ingredients)
+            Console.WriteLine(item.ToString());
+
             Console.Write("Insira o ID do ingrediente: ");
             string idIngrediente = Console.ReadLine()!;
 
