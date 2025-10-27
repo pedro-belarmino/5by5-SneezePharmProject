@@ -327,7 +327,7 @@ namespace Application.Classes.Medicamento
                         FindMedicine();
                         break;
                     case 3:
-                        UpdateMedicine();
+                        UpdateMedicine();//uper
                         break;
                     case 4:
                         PrintMedicines();

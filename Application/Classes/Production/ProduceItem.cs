@@ -197,7 +197,7 @@ namespace Application.Classes.Production
                 switch (opcao)
                 {
                     case 1:
-                        CreateProduceItem();
+                        CreateProduceItem();//moh fita
                         break;
                     case 2:
                         FindProduceItem();
