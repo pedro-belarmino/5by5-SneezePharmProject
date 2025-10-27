@@ -132,19 +132,13 @@ namespace Application.Compra
             string Nome = Console.ReadLine()!;
             Console.WriteLine();
 
+            Console.Write("Insira o ID do ingrediente: ");
+            string idIngrediente = Console.ReadLine()!;
 
-            //integrando classe ingredient
-            Console.Write("Insira o id do ingrediente: ");
-            string IdIngrediente = Console.ReadLine()!;
-            Console.WriteLine();
+            Ingredient ing = new Ingredient(); // Carrega lista de ingredientes
+            ing.PopularLista();
 
-            // Instancia a classe Ingredient e carrega a lista
-            Ingredient buscandoIngrediente = new Ingredient();
-            buscandoIngrediente.Verificador();
-
-            // Busca o ingrediente correspondente
-            var ingrediente = buscandoIngrediente.Ingredients.Find(i => i.Id == IdIngrediente);
-
+            var ingrediente = Ingredient.Ingredients.Find(i => i.Id == idIngrediente);
             if (ingrediente == null)
             {
                 Console.WriteLine("Ingrediente não encontrado. Operação cancelada.");
@@ -153,10 +147,9 @@ namespace Application.Compra
 
             if (ingrediente.situacao == 'I')
             {
-                Console.WriteLine($" O ingrediente '{ingrediente.Nome}' está inativo e não pode ser usado em compras.");
+                Console.WriteLine($"Ingrediente '{ingrediente.Nome}' está inativo e não pode ser usado.");
                 return;
             }
-
 
             Console.Write("Insira a quantidade de itens: ");
             int Quantidade = int.Parse(Console.ReadLine());
@@ -166,9 +159,9 @@ namespace Application.Compra
             decimal ValorUnitario = decimal.Parse(Console.ReadLine());
             Console.WriteLine();
 
-            ////////////////////////////////////////////////////**Total item
+            PurchaseItem NovoPurchaseItem = new(Id, Nome, IdIngrediente, Quantidade, ValorUnitario);
 
-            PurchaseItem NovoPurchaseItem = new(Id, Nome, IdIngrediente, Quantidade, ValorUnitario); //TotalItem);
+            Console.WriteLine($"Total do item: {NovoPurchaseItem.TotalItem:F2}");
 
             PurchaseItems.Add(NovoPurchaseItem);
 
