@@ -36,8 +36,8 @@ internal class Program
                 Console.WriteLine("6 - Opções de Venda");
                 Console.WriteLine("7 - Opções de Item Venda");
                 Console.WriteLine("8 - Opções de Fornecedor");
-                Console.WriteLine("9 - Opções de Purchase Items");
-                Console.WriteLine("10 - Opções de Purchase");
+                Console.WriteLine("9 - Opções de Compra de Items");
+                Console.WriteLine("10 - Opções de Compra");
                 Console.WriteLine("0 - Sair");
 
                 opcao = int.Parse(Console.ReadLine()!);
