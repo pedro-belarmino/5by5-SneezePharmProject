@@ -29,8 +29,8 @@ internal class Program
                 Console.WriteLine("5 - Opções de Item de Producao");
                 Console.WriteLine("6 - Opções de Venda");// feito
                 Console.WriteLine("7 - Opções de Item Venda");// 
-
                 Console.WriteLine("9 - Sair");
+
                 opcao = int.Parse(Console.ReadLine()!);
 
                 switch (opcao)
@@ -61,7 +61,7 @@ internal class Program
                         break;
                 }
 
-            } while (opcao != 7);
+            } while (opcao != 9);
         }
 
         Menu();

@@ -45,7 +45,6 @@ namespace Application.Classes.Production
             while ((line = sr.ReadLine()!) != null)
             {
                 string id = line[..5].Trim();
-                //if (line.Length < 29) continue;
                 DateOnly dataProducao = DateOnly.ParseExact(line.Substring(5, 8), "ddMMyyyy");
                 string medicineCdb = line.Substring(13, 13).Trim();
                 int quantidade = int.Parse(line.Substring(26, 3).Trim());
