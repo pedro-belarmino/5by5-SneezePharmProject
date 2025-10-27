@@ -1,8 +1,14 @@
-﻿using System;
+﻿using Application.Classes.Medicamento;
+using Application.Utils;
+using Application.Utils.WritersAndReaders;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+
+using System.Reflection.Metadata.Ecma335;
+
 using System.Xml;
 using Application.Classes.Medicamento;
 using Application.Utils;
@@ -19,6 +25,7 @@ namespace Application.Classes.Sales
         public DateOnly DataVenda { get; private set; }
         public string ClienteCPF { get; private set; }
         public decimal ValorTotal { get; private set; }
+        public List<Medicine> RelatorioDeVendasPorCDB { get; private set; } = new List<Medicine>();
 
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Sales.data";
@@ -267,6 +274,41 @@ namespace Application.Classes.Sales
         {
             return " --------------------------------------------------------------------------------- \n " +
             $"ID: {IdVenda}, Data da Venda: {DataVenda}, CPF do Cliente: {ClienteCPF}, Valor total: {ValorTotal} ";
+        }
+
+
+
+        public void RelatorioVendaMedicamentos()
+        {
+            Console.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+            Console.WriteLine("         Relatório de Medicamentos Mais Vendidos         ");
+            Console.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+            Console.WriteLine();
+
+            List<string> cdbs = new List<string>();
+
+            Console.WriteLine("   CDB   \t    Nome    \tQuantidade\n");
+
+            foreach (var v in Sales)
+            {
+                foreach (var item in v.RelatorioDeVendasPorCDB)
+                {
+                    if (string.IsNullOrEmpty(item.Cdb) || cdbs.Contains(item.Cdb))
+                        continue;
+
+                    int qtdd = 0;
+                    foreach (var venda in Sales)
+                    {
+                        foreach (var m in venda.RelatorioDeVendasPorCDB)
+                        {
+                            if (m.Cdb == item.Cdb)
+                                qtdd++;
+                        }
+                    }
+                    Console.WriteLine($"{item.Cdb}\t{item.Nome}\t{qtdd}");
+                    cdbs.Add(item.Cdb);
+                }
+            }
         }
     }
 }
