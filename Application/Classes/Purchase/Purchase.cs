@@ -167,6 +167,13 @@ namespace Application.Classes.Purchase
             Purchase pur = new(id, idCompra, dataCompra, fornecedorCNPJ, total);
 
             Purchases.Add(pur);
+
+            var fornecedor = Supplier.Suppliers.Find(x => x.Cnpj == fornecedorCNPJ);
+            if (fornecedor != null)
+            {
+                fornecedor.UltimoFornecimento = DateOnly.FromDateTime(DateTime.Today);
+            }
+
             SaveFile();
         }
 
