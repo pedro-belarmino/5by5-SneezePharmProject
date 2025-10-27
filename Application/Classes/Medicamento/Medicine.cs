@@ -338,7 +338,7 @@ namespace Application.Classes.Medicamento
                         CreateMedicine();
                         break;
                     case 2:
-                        FindMedicine();
+                        FindMedicine();  
                         break;
                     case 3:
                         UpdateMedicine(); /*OK*/
