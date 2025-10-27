@@ -13,7 +13,7 @@ namespace Application.Classes.Sales
     public class Sale
     {
         Writer_Reader objeto = new Writer_Reader();
-        public List<Sale> Sales = new List<Sale>();
+        public static List<Sale> Sales = new List<Sale>();
 
         public string IdVenda { get; private set; }
         public DateOnly DataVenda { get; private set; }

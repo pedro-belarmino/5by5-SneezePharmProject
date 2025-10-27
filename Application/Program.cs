@@ -14,7 +14,9 @@ internal class Program
         Sale venda = new();
         SaleItens saleItens = new();
         Customer customer = new();
+        RelatorioDeVendasPorPeriodo relatorioPorPeriodo = new();
         Supplier supplier = new();
+
 
         void Menu()
         {
@@ -31,6 +33,7 @@ internal class Program
                 Console.WriteLine("5 - Opções de Item de Producao");
                 Console.WriteLine("6 - Opções de Venda");// feito
                 Console.WriteLine("7 - Opções de Item Venda");// 
+                Console.WriteLine("8 - Relatório de vendas por período.");
                 Console.WriteLine("8 - Fornecedor");// feito
                 Console.WriteLine("9 - Sair");
 
@@ -57,6 +60,7 @@ internal class Program
                         venda.SaleMenu();
                         break;
                     case 7:
+                        relatorioPorPeriodo.BuscarVendas();
                         saleItens.SaleItensMenu();
                         break;
                     case 8:
