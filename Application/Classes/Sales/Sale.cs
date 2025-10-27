@@ -184,7 +184,7 @@ namespace Application.Classes.Sales
             do
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                System.Console.WriteLine("##### MENU VENDA ####");
+                System.Console.WriteLine("===== MENU VENDA =====");
                 Console.ResetColor();
 
                 Console.WriteLine("Escolha uma opção: ");
