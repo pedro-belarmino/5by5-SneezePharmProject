@@ -109,6 +109,8 @@ namespace Application.Classes
             Console.Write("Informe o CNPJ do fornecedor: ");
             string cnpj = Console.ReadLine()!;
 
+
+
             //verifica se fornecedor esta bloqueado
             new RestrictedSupplier();
             bool bloqueado = RestrictedSupplier.FornecedoresRestritos.Any(f => f.Cnpj.Trim() == cnpj);
@@ -122,6 +124,13 @@ namespace Application.Classes
             // verifica fornecedor na lista normal
             new Supplier();
             var fornecedorExistente = Supplier.Suppliers.Find(f => f.Cnpj.Trim() == cnpj);
+
+            int tempoAbertura = fornecedorExistente.DataAbertura.Year - DateTime.Now.Year;
+            if (tempoAbertura < 2)
+            {
+                Console.WriteLine("Fornecedor tem menos de 2 anos de empresa aberta.");
+                return;
+            }
 
             if (fornecedorExistente == null)
             {
