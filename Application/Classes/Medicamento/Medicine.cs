@@ -204,13 +204,15 @@ namespace Application.Classes.Medicamento
             Console.WriteLine();
 
             Console.Write("Informe a categoria do medicamento: (A - Analgésico, B - Antibiótico, I - Anti-inflamatório, V - Vitamina): ");
-            char categoria = char.Parse(Console.ReadLine()!);
-            while (!VerificarCategoria(categoria))
+            string? entradaCat = Console.ReadLine();
+
+            while (string.IsNullOrWhiteSpace(entradaCat) || entradaCat.Length != 1 || !VerificarCategoria(char.ToUpper(entradaCat[0])))
             {
                 Console.WriteLine("Categoria inválida, tente novamente.");
-                categoria = char.Parse(Console.ReadLine()!);
+                entradaCat = Console.ReadLine();
             }
-            Console.WriteLine();
+
+            char categoria = char.ToUpper(entradaCat[0]);
 
             Console.Write("Informe o valor de venda: ");
             decimal valorVenda = decimal.Parse(Console.ReadLine()!, CultureInfo.InvariantCulture);
@@ -229,13 +231,15 @@ namespace Application.Classes.Medicamento
             Console.WriteLine();
 
             Console.Write("Informe a situação do ingrediente (A - Ativo, I - Inativo): ");
-            char situacao = char.Parse(Console.ReadLine()!);
-            while (situacao != 'A' && situacao != 'I')
+            string? entradaSit = Console.ReadLine();
+
+            while (string.IsNullOrWhiteSpace(entradaSit) || entradaSit.Length != 1 || (char.ToUpper(entradaSit[0]) != 'A' && char.ToUpper(entradaSit[0]) != 'I'))
             {
                 Console.WriteLine("Situação inválida, tente novamente.");
-                situacao = char.Parse(Console.ReadLine()!);
+                entradaSit = Console.ReadLine();
             }
-            Console.WriteLine();
+
+            char situacao = char.ToUpper(entradaSit[0]);
 
             Medicine newMedicine = new Medicine(cdb, nome, categoria, valorVenda, ultimaVenda, dataCadastro, situacao);
 
@@ -278,25 +282,35 @@ namespace Application.Classes.Medicamento
             Console.WriteLine();
 
             Console.Write("Informe a nova categoria do medicamento: (A - Analgésico, B - Antibiótico, I - Anti-inflamatório, V - Vitamina): ");
-            UpdatedMedicine.Categoria = char.Parse(Console.ReadLine()!);
-            do
+            string? entradaNovaCat = Console.ReadLine();
+
+            while (string.IsNullOrWhiteSpace(entradaNovaCat) || entradaNovaCat.Length != 1 || !VerificarCategoria(char.ToUpper(entradaNovaCat[0])))
             {
-                VerificarCategoria(UpdatedMedicine.Categoria);
-            } while (!VerificarCategoria(UpdatedMedicine.Categoria));
-            Console.WriteLine();
+                Console.WriteLine("Categoria inválida, tente novamente.");
+                entradaNovaCat = Console.ReadLine();
+            }
+
+            UpdatedMedicine.Categoria = char.ToUpper(entradaNovaCat[0]);
 
             do
             {
                 Console.Write("Informe a nova situação do Medicamento (A - Ativo, I - Inativo): ");
-                UpdatedMedicine.situacao = char.Parse(Console.ReadLine()!);
+                string? entradaNovaSit = Console.ReadLine();
 
-                if (UpdatedMedicine.situacao != 'A' && UpdatedMedicine.situacao != 'I')
-                    Console.WriteLine("Situação inválida, tente novamente.");
+                if (!string.IsNullOrWhiteSpace(entradaNovaSit) && entradaNovaSit.Length == 1 && (char.ToUpper(entradaNovaSit[0]) == 'A' || char.ToUpper(entradaNovaSit[0]) == 'I'))
+                {
+                    UpdatedMedicine.situacao = char.ToUpper(entradaNovaSit[0]);
+                    break;
+                }
 
-            } while (UpdatedMedicine.situacao != 'A' && UpdatedMedicine.situacao != 'I');
+                Console.WriteLine("Situação inválida, tente novamente.");
+
+            } while (true);
 
             SaveFile();
             return UpdatedMedicine;
+
+
         }
 
         public void PrintMedicines()
@@ -327,7 +341,7 @@ namespace Application.Classes.Medicamento
                         FindMedicine();
                         break;
                     case 3:
-                        UpdateMedicine();//uper
+                        UpdateMedicine(); /*OK*/
                         break;
                     case 4:
                         PrintMedicines();
