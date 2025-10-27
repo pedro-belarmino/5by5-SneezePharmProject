@@ -87,6 +87,7 @@ namespace Application.Compra
                     string valorUnitarioStr = line.Substring(35, 43).Trim();
                     string totalItemStr = line.Substring(43, 51).Trim();
 
+
                     //tratanto inteiro para string
                     int quantidade = int.TryParse(quantidadeStr, out int q) ? q : 0;
                     //tratando decimal para string
@@ -135,21 +136,9 @@ namespace Application.Compra
             Console.Write("Insira o ID do ingrediente: ");
             string idIngrediente = Console.ReadLine()!;
 
-            Ingredient ing = new Ingredient(); // Carrega lista de ingredientes
-            ing.PopularLista();
+            Ingredient.Ingredients.ForEach(x => Console.WriteLine(x));
 
-            var ingrediente = Ingredient.Ingredients.Find(i => i.Id == idIngrediente);
-            if (ingrediente == null)
-            {
-                Console.WriteLine("Ingrediente não encontrado. Operação cancelada.");
-                return;
-            }
-
-            if (ingrediente.situacao == 'I')
-            {
-                Console.WriteLine($"Ingrediente '{ingrediente.Nome}' está inativo e não pode ser usado.");
-                return;
-            }
+            
 
             Console.Write("Insira a quantidade de itens: ");
             int Quantidade = int.Parse(Console.ReadLine());
@@ -159,7 +148,8 @@ namespace Application.Compra
             decimal ValorUnitario = decimal.Parse(Console.ReadLine());
             Console.WriteLine();
 
-            PurchaseItem NovoPurchaseItem = new(Id, Nome, IdIngrediente, Quantidade, ValorUnitario);
+            PurchaseItem NovoPurchaseItem = new(Id, Nome, idIngrediente, Quantidade, ValorUnitario);
+
 
             Console.WriteLine($"Total do item: {NovoPurchaseItem.TotalItem:F2}");
 
@@ -202,22 +192,23 @@ namespace Application.Compra
 
         public void SaveFile()
         {
-            StreamWriter writer = new StreamWriter(fullPath);
-            foreach (var purchaseItem in PurchaseItems)
+            using (StreamWriter writer = new StreamWriter(fullPath))
             {
-                string idFormatado = purchaseItem.Id!.PadRight(5);
-                string nomeFormatado = purchaseItem.Nome!.PadRight(20);
-                string idIngredienteFormatado = purchaseItem.IdIngrediente.ToString();
-                string quantidadeFormatado = purchaseItem.Quantidade.ToString("D4").PadLeft(4);
-                string valorUnitarioFormatado = purchaseItem.ValorUnitario.ToString("F2").PadLeft(8); // 999.99
-                string totalItemFormatado = purchaseItem.TotalItem.ToString("F2").PadLeft(8);         // 99999.99
+                foreach (var purchaseItem in PurchaseItems)
+                {
+                    string idFormatado = purchaseItem.Id!.PadRight(5);
+                    string nomeFormatado = purchaseItem.Nome!.PadRight(20);
+                    string idIngredienteFormatado = purchaseItem.IdIngrediente.PadRight(6);
+                    string quantidadeFormatado = purchaseItem.Quantidade.ToString("D4");
+                    string valorUnitarioFormatado = purchaseItem.ValorUnitario.ToString("F2").PadLeft(8);
+                    string totalItemFormatado = purchaseItem.TotalItem.ToString("F2").PadLeft(8);
 
-                string dadoFinal = idFormatado + nomeFormatado + idIngredienteFormatado + quantidadeFormatado + valorUnitarioFormatado + totalItemFormatado;
-
-                writer.WriteLine(dadoFinal);
+                    string dadoFinal = idFormatado + nomeFormatado + idIngredienteFormatado + quantidadeFormatado + valorUnitarioFormatado + totalItemFormatado;
+                    writer.WriteLine(dadoFinal);
+                }
             }
-            writer.Close();
         }
+
 
         public override string ToString()
         {
