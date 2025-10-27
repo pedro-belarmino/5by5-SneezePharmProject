@@ -120,22 +120,21 @@ namespace Application.Compra
 
         public void CreatePurchaseItem()
         {
-            string Id = GerarIdUnico();
-            Console.WriteLine("ID gerado: " + Id);
-            Console.WriteLine();
+            string id = GerarIdUnico();
+            Console.WriteLine($"ID gerado: {id}\n");
+
+            if (Ingredient.Ingredients.Count == 0)
+            {
+                Console.WriteLine("Nenhum ingrediente disponível.");
+                return;
+            }
 
             Console.WriteLine("Ingredientes disponíveis:");
-            Console.WriteLine();
+            foreach (var ing in Ingredient.Ingredients)
+                Console.WriteLine(ing.ToString());
 
-            Ingredient ingredient = new Ingredient();
-            foreach (var item in Ingredient.Ingredients)
-            Console.WriteLine(item.ToString());
-
-            Console.Write("Insira o ID do ingrediente: ");
+            Console.Write("\nInsira o ID do ingrediente: ");
             string idIngrediente = Console.ReadLine()!;
-
-            Ingredient ing = new Ingredient(); // Carrega lista de ingredientes
-            ing.PopularLista();
 
             var ingrediente = Ingredient.Ingredients.Find(i => i.Id == idIngrediente);
             if (ingrediente == null)
