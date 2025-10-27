@@ -10,9 +10,7 @@ using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 
 using System.Xml;
-using Application.Classes.Medicamento;
-using Application.Utils;
-using Application.Utils.WritersAndReaders;
+
 
 namespace Application.Classes.Sales
 {
@@ -32,7 +30,6 @@ namespace Application.Classes.Sales
         string fullPath = Path.Combine(diretorio, file);
 
         private int lastId = 0;
-        RelatorioDeVendasPorPeriodo relatorioPorPeriodo = new();
         public Sale()
         {
             objeto.Verificador(diretorio, fullPath);
@@ -239,8 +236,9 @@ namespace Application.Classes.Sales
                 Console.WriteLine("2 - Encontrar venda: ");
                 Console.WriteLine("3 - Alterar venda: ");
                 Console.WriteLine("4 - Imprimir todas as vendas: ");
-                Console.WriteLine("5 - Mostrar Relatorio: ");
-                Console.WriteLine("6 - Sair");
+                Console.WriteLine("5 - Mostrar Relatorio de venda: ");
+                Console.WriteLine("6 - Mostrar Relatorio de compra ");
+                Console.WriteLine("7 - Sair");
                 op = int.Parse(Console.ReadLine()!);
 
                 switch (op)
@@ -258,9 +256,12 @@ namespace Application.Classes.Sales
                         PrintSale();
                         break;
                     case 5:
-                        relatorioPorPeriodo.BuscarVendas();
+                        BuscarVendas();
                         break;
                     case 6:
+                        RelatorioVendaMedicamentos();
+                        break;
+                    case 7:
                         SaveFile();
                         return;
                     default:
@@ -278,37 +279,143 @@ namespace Application.Classes.Sales
 
 
 
+
+
+
+
+        public void BuscarVendas()
+        {
+            DateOnly variavel;
+            while (true)
+            {
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.Write("Digite o mês e ano (MM/yyyy): ");
+                Console.ResetColor();
+                string? info = Console.ReadLine()?.Trim();
+
+                if (string.IsNullOrWhiteSpace(info))
+                {
+                    Console.WriteLine("Entrada vazia. Tente novamente.");
+                    continue;
+                }
+
+                if (DateOnly.TryParseExact("01/" + info, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out variavel))
+                    break;
+
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Mês inválido. Use o formato MM/yyyy (ex: 10/2025).");
+                Console.ResetColor();
+            }
+
+            var vendasDoMes = Sales
+                .Where(x => x.DataVenda.Month == variavel.Month && x.DataVenda.Year == variavel.Year)
+                .ToList();
+
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine($"===== RELATÓRIO DE VENDAS — {variavel.Month:D2}/{variavel.Year} =====");
+            Console.ResetColor();
+
+            if (vendasDoMes.Count == 0)
+            {
+                Console.WriteLine("\nNenhuma venda encontrada nesse período.");
+            }
+            else
+            {
+                decimal totalPeriodo = 0;
+                foreach (var venda in vendasDoMes)
+                {
+                    Console.WriteLine(venda);
+                    totalPeriodo += venda.ValorTotal;
+                }
+
+                Console.WriteLine("----------------------------------------------------");
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Total vendido no período: R$ {totalPeriodo:F2}");
+                Console.ResetColor();
+            }
+
+            Console.WriteLine("\nPressione qualquer tecla para voltar ao menu...");
+            Console.ReadKey();
+        }
+
+
+
+
+
+
         public void RelatorioVendaMedicamentos()
         {
-            Console.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-            Console.WriteLine("         Relatório de Medicamentos Mais Vendidos         ");
-            Console.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
-            Console.WriteLine();
+            string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
+            string file = "SaleItens.data"; // Arquivo que deve conter CDB e quantidade
+            string fullPath = Path.Combine(diretorio, file);
 
-            List<string> cdbs = new List<string>();
-
-            Console.WriteLine("   CDB   \t    Nome    \tQuantidade\n");
-
-            foreach (var v in Sales)
+            if (!File.Exists(fullPath))
             {
-                foreach (var item in v.RelatorioDeVendasPorCDB)
-                {
-                    if (string.IsNullOrEmpty(item.Cdb) || cdbs.Contains(item.Cdb))
-                        continue;
+                Console.WriteLine("Arquivo de vendas de medicamentos (SalesItems.data) não encontrado!");
+                return;
+            }
 
-                    int qtdd = 0;
-                    foreach (var venda in Sales)
-                    {
-                        foreach (var m in venda.RelatorioDeVendasPorCDB)
-                        {
-                            if (m.Cdb == item.Cdb)
-                                qtdd++;
-                        }
-                    }
-                    Console.WriteLine($"{item.Cdb}\t{item.Nome}\t{qtdd}");
-                    cdbs.Add(item.Cdb);
+
+            Dictionary<string, int> vendasPorMedicamento = new Dictionary<string, int>();
+
+            using (StreamReader sr = new StreamReader(fullPath))
+            {
+                string? line;
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (line.Length < 13) continue;
+                    string cdb = line.Substring(0, 13).Trim();
+
+                    if (!vendasPorMedicamento.ContainsKey(cdb))
+                        vendasPorMedicamento[cdb] = 0;
+
+                    vendasPorMedicamento[cdb]++;
                 }
             }
+
+            // Agora, buscar os nomes dos medicamentos pelo arquivo Medicine.data
+            string fileMedicines = Path.Combine(diretorio, "Medicine.data");
+            Dictionary<string, string> nomesMedicamentos = new Dictionary<string, string>();
+            if (File.Exists(fileMedicines))
+            {
+                using (StreamReader sr = new StreamReader(fileMedicines))
+                {
+                    string? line;
+                    while ((line = sr.ReadLine()) != null)
+                    {
+                        if (line.Length < 53) continue;
+                        string cdb = line.Substring(0, 13).Trim();
+                        string name = line.Substring(13, 40).Trim(); ;
+                    }
+                }
+            }
+
+            var relatorio = vendasPorMedicamento
+                .Select(v => new
+                {
+                    Cdb = v.Key,
+                    Quantidade = v.Value
+                })
+                .OrderByDescending(x => x.Quantidade)
+                .ToList();
+
+            Console.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+            Console.WriteLine("    Relatório de Medicamentos Mais Vendidos    ");
+            Console.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+            Console.WriteLine();
+            Console.WriteLine("   CDB\t\tQuantidade");
+            Console.WriteLine("---------------------------------------------");
+
+            foreach (var med in relatorio)
+            {
+                Console.WriteLine($"{med.Cdb,-15}{med.Quantidade}");
+            }
+
+            Console.WriteLine("---------------------------------------------------------");
+            Console.WriteLine($"Total de medicamentos listados: {relatorio.Count}");
         }
+
+
     }
 }
