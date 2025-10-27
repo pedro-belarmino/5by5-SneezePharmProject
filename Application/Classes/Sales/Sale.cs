@@ -65,10 +65,20 @@ namespace Application.Classes.Sales
             Sales.Add(newSale);
             SaveFile();
 
-
-
+            UpdateSaleDateAtClient(cpf, data)
+            ;
         }
+        Customer person = new Customer();
+        public void UpdateSaleDateAtClient(string cpf, DateOnly dataVenda)
+        {
+            string cpfAjustado = cpf.PadLeft(11, '0');
 
+            var pessoa = person.SearchCPF(cpfAjustado);
+            if (pessoa is null)
+                Console.WriteLine("CPF não encontrado");
+            else
+                person.UpdateSaleDate(cpf, dataVenda);
+        }
 
         public void Verificador()
         {
