@@ -14,8 +14,8 @@ namespace Application.Compra
 
         public List<PurchaseItem> PurchaseItems = new List<PurchaseItem>();
 
-        public string? Id { get; private set; }
-        public string? Nome { get; private set; }
+        public string Id { get; private set; }
+        public string Nome { get; private set; }
 
         public string IdIngrediente { get; private set; }   //recebe do ingrediente
         public int Quantidade { get; private set; }
@@ -192,21 +192,19 @@ namespace Application.Compra
             return updatedPurchaseItem;
         }
 
-
         public void PrintPurchaseItem()
         {
             foreach (var purchaseItem in PurchaseItems)
                 Console.WriteLine(purchaseItem);
         }
 
-
         public void SaveFile()
         {
             StreamWriter writer = new StreamWriter(fullPath);
             foreach (var purchaseItem in PurchaseItems)
             {
-                string idFormatado = purchaseItem.Id!.PadRight(5);
-                string nomeFormatado = purchaseItem.Nome!.PadRight(20);
+                string idFormatado = purchaseItem.Id.PadRight(5);
+                string nomeFormatado = purchaseItem.Nome.PadRight(20);
                 string idIngredienteFormatado = purchaseItem.IdIngrediente.ToString();
                 string quantidadeFormatado = purchaseItem.Quantidade.ToString("D4").PadLeft(4);
                 string valorUnitarioFormatado = purchaseItem.ValorUnitario.ToString("F2").PadLeft(8); // 999.99

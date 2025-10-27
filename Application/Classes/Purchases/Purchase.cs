@@ -202,13 +202,14 @@ namespace Application.Classes
             Console.WriteLine("Deseja adicionar ou remover itens? (A/R): ");
             string opc = Console.ReadLine()!.ToUpper();
 
+
             if (opc == "A" && ItensDaCompra.Count < 3)
             {
-                PurchaseItem handler = new PurchaseItem();
-                handler.CreatePurchaseItem();
-                var novoItem = handler.PurchaseItems.LastOrDefault();
+                PurchaseItem operacao = new PurchaseItem();
+                operacao.CreatePurchaseItem();
+                var novoItem = operacao.PurchaseItems.LastOrDefault();
                 if (novoItem != null)
-                    ItensDaCompra.Add(novoItem);
+                ItensDaCompra.Add(novoItem);
             }
             else if (opc == "R")
             {
@@ -216,14 +217,12 @@ namespace Application.Classes
                 string idItem = Console.ReadLine()!;
                 var item = ItensDaCompra.Find(i => i.Id == idItem);
                 if (item != null)
-                    ItensDaCompra.Remove(item);
+                ItensDaCompra.Remove(item);
             }
-
+            //somando os valores
             compra.ValorTotal = ItensDaCompra.Sum(i => i.TotalItem);
             SaveFile();
         }
-
-
 
         public void PrintPurchases()
         {
@@ -257,6 +256,7 @@ namespace Application.Classes
             Console.Write("Informe o CNPJ do fornecedor: ");
             string cnpj = Console.ReadLine()!.Trim();
 
+            
             var fornecedorExistente = Supplier.Suppliers.Find(f => f.Cnpj.Trim() == cnpj);
 
             if (fornecedorExistente == null)
@@ -265,7 +265,7 @@ namespace Application.Classes
                 return;
             }
 
-            // Filtra todas as compras do fornecedor
+            //retorna uma nova lista contendo todas as compras.
             var comprasDoFornecedor = Purchases.FindAll(p => p.CnpjFornecedor.Trim() == cnpj);
 
             if (comprasDoFornecedor.Count == 0)
@@ -326,7 +326,7 @@ namespace Application.Classes
                         Console.WriteLine("Opção inválida.");
                         break;
                 }
-            } while (opcao != 5);
+            } while (opcao != 6);
         }
     }
 }
