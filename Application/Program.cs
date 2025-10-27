@@ -3,7 +3,6 @@ using Application.Classes;
 using Application.Classes.Medicamento;
 using Application.Classes.Production;
 using Application.Classes.Sales;
-using Application.Compra;
 
 internal class Program
 {
@@ -17,10 +16,6 @@ internal class Program
         SaleItens saleItens = new();
         Customer customer = new();
         Supplier supplier = new();
-        Purchase purchase = new();
-        PurchaseItem purchaseItem = new();
-
-
 
         void Menu()
         {
@@ -48,7 +43,6 @@ internal class Program
                 switch (opcao)
                 {
                     case 1:
-                        purchaseItem.PurchaseItemMenu();
                         customer.ClientMenu();
                         break;
                     case 2:
@@ -74,10 +68,8 @@ internal class Program
                         supplier.MenuPrincipal();
                         break;
                     case 9:
-                        purchaseItem.PurchaseItemMenu();
                         break;
                     case 10:
-                        purchase.PurchaseMenu();
                         break;
                     case 0:
                         Console.WriteLine("Encerrando programa. Obrigado!");
