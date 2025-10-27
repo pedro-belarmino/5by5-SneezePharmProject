@@ -14,7 +14,7 @@ namespace Application.Classes
     {
         Writer_Reader objeto = new ();
 
-        private static List<RestrictedCustomer> ClientesBloqueados = new ();
+        private List<RestrictedCustomer> ClientesBloqueados = new ();
         public Customer? Clientes {  get; private set; }
         public string? Cpf { get; private set; }
 
@@ -25,9 +25,6 @@ namespace Application.Classes
 
         public RestrictedCustomer()
         {
-            string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
-            string file = "RestrictedCustomers.data ";
-            string fullPath = Path.Combine(diretorio, file);
             objeto.Verificador(diretorio, fullPath);
             PopularLista();
         }
@@ -55,7 +52,7 @@ namespace Application.Classes
 
         }
 
-        private static void SaveFile()
+        private void SaveFile()
         {
             StreamWriter writer = new(fullPath);
 
@@ -71,7 +68,7 @@ namespace Application.Classes
 
 
 
-        public static void RestrictionsMenu() 
+        public void RestrictionsMenu() 
         {
             int opcao, min = 1, max = 5;
             do
@@ -87,7 +84,7 @@ namespace Application.Classes
                     Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
                     Console.WriteLine("\nInforme a opção desejada: ");
                     string op = Console.ReadLine()!;
-                    opcao = Customer.ValidateMenu(op, min, max);
+                    opcao = Clientes.ValidateMenu(op, min, max);
 
                 } while (opcao < min && opcao > max);
 
@@ -113,7 +110,7 @@ namespace Application.Classes
             } while (opcao != 0);
         }
 
-        public static void BlockCustomer()
+        public void BlockCustomer()
         {
             Console.Clear();
             string cpf;
@@ -134,7 +131,7 @@ namespace Application.Classes
             {
                 Console.WriteLine("\nDeseja realmente restringir o cliente?\n[1] Sim [2] Não");
                 string op = Console.ReadLine()!;
-                opcao = Customer.ValidateMenu(op, min, max);
+                opcao = Clientes.ValidateMenu(op, min, max);
             } while (opcao < 1 && opcao > 2);
 
             if (opcao == 2)
@@ -147,7 +144,7 @@ namespace Application.Classes
 
         }
 
-        public static void UnlockCustomer()
+        public void UnlockCustomer()
         {
             int opcao, min = 1, max = 2;
             string cpf;
@@ -177,7 +174,7 @@ namespace Application.Classes
             {
                 Console.WriteLine("\nDeseja realmente remover a restrição do cliente?\n[1] Sim [2] Não");
                 string op = Console.ReadLine()!;
-                opcao = Customer.ValidateMenu(op, min, max);
+                opcao = Clientes.ValidateMenu(op, min, max);
             } while (opcao < 1 && opcao > 2);
 
             if (opcao == 2)
@@ -188,10 +185,10 @@ namespace Application.Classes
             SaveFile();
         }
 
-        public static bool SearchClientList(string cpf)
+        public bool SearchClientList(string cpf)
         {
             bool cpfValido = false;
-            var cliente = Customer.SearchCPF(cpf);
+            var cliente = Clientes.SearchCPF(cpf);
 
             if (cliente is null)
                 Console.WriteLine("CPF não encontrado");
@@ -203,7 +200,7 @@ namespace Application.Classes
             return cpfValido;
         }
 
-        public static void ShowRestrictedClient() 
+        public  void ShowRestrictedClient() 
         {
             Console.Clear();
             Console.WriteLine("Informe CPF: ");
@@ -221,12 +218,12 @@ namespace Application.Classes
 
         }
 
-        public static RestrictedCustomer? SearchRestrictedClient(string cpf) 
+        public RestrictedCustomer? SearchRestrictedClient(string cpf) 
         {
             return ClientesBloqueados.Find(c => c.Cpf == cpf);
         }
 
-        public static void ListRestrictedClients()
+        public void ListRestrictedClients()
         {
             Console.Clear();
 
