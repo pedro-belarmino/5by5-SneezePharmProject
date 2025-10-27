@@ -43,6 +43,7 @@ namespace Application.Classes.Suppliers
         // Método: Popular a lista (Leiutura do arquivo) > aplicando os parâmetros do Fornecedor, e tamanhos pré-estipulados
         public void PopularLista()
         {
+            FornecedoresRestritos.Clear();
             StreamReader sr = new StreamReader(fullPath);
 
             string linha;
@@ -91,7 +92,7 @@ namespace Application.Classes.Suppliers
 
             if (fornecedorRestrito is not null)
             {
-                fornecedorRestrito.ToString();
+                Console.WriteLine(fornecedorRestrito.ToString());
                 return fornecedorRestrito;
             }
             return null;
@@ -138,7 +139,7 @@ namespace Application.Classes.Suppliers
             Console.WriteLine("Lista de Fornecedores Restritos:");
             foreach (var fornecedorRestrito in FornecedoresRestritos)
             {
-                fornecedorRestrito.ToString();
+                Console.WriteLine(fornecedorRestrito.ToString());
             }
         }
 
