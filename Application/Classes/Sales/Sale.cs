@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Reflection.Metadata.Ecma335;
+using System.Xml;
 using Application.Classes.Medicamento;
 using Application.Utils;
 using Application.Utils.WritersAndReaders;
@@ -12,8 +12,6 @@ namespace Application.Classes.Sales
 {
     public class Sale
     {
-
-
         Writer_Reader objeto = new Writer_Reader();
         public List<Sale> Sales = new List<Sale>();
 
@@ -31,7 +29,6 @@ namespace Application.Classes.Sales
         public Sale()
         {
             objeto.Verificador(diretorio, fullPath);
-            Console.WriteLine("Arquivo e diretório da venda criados com sucesso.");
             Verificador();
         }
 
@@ -43,49 +40,102 @@ namespace Application.Classes.Sales
             this.ValorTotal = v;
         }
 
-
         public void CreateSale()
         {
             lastId++;
             string ID = $"{lastId:D5}";
-            System.Console.WriteLine();
 
-
-            System.Console.WriteLine("Insira a data da venda (dd/mm/yyyy)");
-            DateOnly data = DateOnly.Parse(Console.ReadLine()!);
-
-            System.Console.WriteLine("Insira o cpf do cliente");
+            Console.WriteLine("Insira o cpf do cliente");
             string cpf = Console.ReadLine()!;
-            System.Console.WriteLine();
-
-
-
-
-
-
-
-
-            System.Console.WriteLine("valor total");
-            decimal vt = decimal.Parse(Console.ReadLine()!);
-
-            Sale newSale = new(ID, data, cpf, vt);
-
-            Sales.Add(newSale);
-            SaveFile();
-
-            UpdateSaleDateAtClient(cpf, data)
-            ;
-        }
-        Customer person = new Customer();
-        public void UpdateSaleDateAtClient(string cpf, DateOnly dataVenda)
-        {
             string cpfAjustado = cpf.PadLeft(11, '0');
 
-            var pessoa = person.SearchCPF(cpfAjustado);
-            if (pessoa is null)
+            if (!personExists(cpfAjustado))
+            {
                 Console.WriteLine("CPF não encontrado");
-            else
-                person.UpdateSaleDate(cpf, dataVenda);
+                return;
+            }
+
+            Console.WriteLine("Insira a data da venda (dd/mm/yyyy)");
+            DateOnly data = DateOnly.Parse(Console.ReadLine()!);
+
+            decimal vu;
+            while (true)
+            {
+                Console.WriteLine("Valor unitário (máximo permitido: 9999.99)");
+                if (!decimal.TryParse(Console.ReadLine(), out vu))
+                {
+                    Console.WriteLine("Valor inválido. Tente novamente.");
+                    continue;
+                }
+
+                if (vu > 9999.99m)
+                {
+                    Console.WriteLine("O valor unitário não pode ultrapassar 9999.99. Digite novamente.");
+                    continue;
+                }
+
+                if (vu < 0)
+                {
+                    Console.WriteLine("O valor unitário não pode ser negativo. Digite novamente.");
+                    continue;
+                }
+
+                break;
+            }
+
+            int qtd;
+            while (true)
+            {
+                Console.WriteLine("Insira a quantidade");
+                if (!int.TryParse(Console.ReadLine(), out qtd) || qtd <= 0)
+                {
+                    Console.WriteLine("Quantidade inválida. Digite um número inteiro positivo.");
+                    continue;
+                }
+
+                break;
+            }
+
+            decimal vt = vu * qtd;
+
+            while (vt > 99999999.99m)
+            {
+                Console.WriteLine("O valor total não pode ultrapassar 99.999.999,99.");
+                Console.WriteLine("Digite novamente o valor unitário ou a quantidade.");
+
+                Console.WriteLine("Valor unitário (máximo permitido: 9999.99)");
+                vu = decimal.Parse(Console.ReadLine()!);
+
+                Console.WriteLine("Insira a quantidade");
+                qtd = int.Parse(Console.ReadLine()!);
+
+                vt = vu * qtd;
+
+                if (vu > 9999.99m)
+                {
+                    Console.WriteLine("O valor unitário não pode ultrapassar 9999.99. Digite novamente.");
+                    continue;
+                }
+            }
+
+            Sale newSale = new(ID, data, cpfAjustado, vt);
+            Sales.Add(newSale);
+            SaveFile();
+            UpdateSaleDateAtClient(cpfAjustado, data);
+        }
+
+
+        Customer person = new Customer();
+
+        private bool personExists(string cpf)
+        {
+            var pessoa = person.SearchCPF(cpf);
+            return pessoa != null;
+        }
+
+        public void UpdateSaleDateAtClient(string cpf, DateOnly dataVenda)
+        {
+            person.UpdateSaleDate(cpf, dataVenda);
         }
 
         public void Verificador()
@@ -93,15 +143,10 @@ namespace Application.Classes.Sales
             try
             {
                 if (!Directory.Exists(diretorio))
-                {
                     Directory.CreateDirectory(diretorio);
-                }
 
                 if (!File.Exists(fullPath))
-                {
                     using (StreamWriter wr = new StreamWriter(fullPath)) { }
-                    ;
-                }
             }
             catch (Exception e)
             {
@@ -114,66 +159,48 @@ namespace Application.Classes.Sales
         public void PopularListaVendas()
         {
             StreamReader sr = new StreamReader(fullPath);
-
             string line;
             while ((line = sr.ReadLine()!) != null)
             {
-                // Extrair partes da linha conforme posições
                 string idVenda = line.Substring(0, 5).Trim();
                 DateOnly dataVenda = DateOnly.ParseExact(line.Substring(5, 8), "ddMMyyyy");
                 string clienteCPF = line.Substring(13, 11);
-
-
                 decimal valorTotalDecimal = decimal.Parse(line.Substring(24, 11));
                 decimal valorTotalDecimalComPonto = valorTotalDecimal / 100;
-
-                // Criar objeto Sale
                 Sale venda = new Sale(idVenda, dataVenda, clienteCPF, valorTotalDecimalComPonto);
-
-                // Adicionar à lista
                 Sales.Add(venda);
             }
             sr.Close();
 
-
             if (Sales.Count > 0)
                 lastId = Sales.Select(x => int.Parse(x.IdVenda!.Substring(0, 4))).Max();
             else
-            {
                 lastId = 0;
-            }
-
         }
 
-
-
-        public void PrintSale() //printar
+        public void PrintSale()
         {
             foreach (var s in Sales)
                 Console.WriteLine(s);
         }
 
-
         public Sale FindSale()
         {
-            System.Console.WriteLine("Informe o ID da venda");
+            Console.WriteLine("Informe o ID da venda");
             string i = Console.ReadLine()!;
             var vendaEncontrada = Sales.Find(j => j.IdVenda == i);
-            System.Console.WriteLine(vendaEncontrada);
+            Console.WriteLine(vendaEncontrada);
             return vendaEncontrada!;
         }
-
 
         public Sale UpdateSale()
         {
             Sale vendaNova = FindSale();
-
-            System.Console.WriteLine("Informe a data correta da compra (dd/mm/yyyy)");
+            Console.WriteLine("Informe a data correta da compra (dd/mm/yyyy)");
             vendaNova.DataVenda = DateOnly.Parse(Console.ReadLine()!);
             SaveFile();
             return vendaNova;
         }
-
 
         public void SaveFile()
         {
@@ -183,26 +210,20 @@ namespace Application.Classes.Sales
                 string idFormatado = s.IdVenda!.PadLeft(5);
                 string dataVendaFormadatada = s.DataVenda!.ToString("ddMMyyyy");
                 string clienteCPFFormatado = s.ClienteCPF!.PadRight(11);
-
                 string valorTotalFormatado = s.ValorTotal.ToString("00000000.00", CultureInfo.InvariantCulture);
-
-
                 string dadoFinal = idFormatado + dataVendaFormadatada + clienteCPFFormatado + valorTotalFormatado;
-
                 writer.WriteLine(dadoFinal);
             }
             writer.Close();
         }
 
-
         public void SaleMenu()
         {
             int op;
-
             do
             {
                 Console.ForegroundColor = ConsoleColor.Green;
-                System.Console.WriteLine("===== MENU VENDA =====");
+                Console.WriteLine("===== MENU VENDA =====");
                 Console.ResetColor();
 
                 Console.WriteLine("Escolha uma opção: ");
@@ -237,11 +258,10 @@ namespace Application.Classes.Sales
             } while (true);
         }
 
-
         public override string? ToString()
         {
             return " --------------------------------------------------------------------------------- \n " +
-            $"ID: {IdVenda}, Data da Venda: {DataVenda}, CPF do Clinte: {ClienteCPF}, Valor total: {ValorTotal} ";
+            $"ID: {IdVenda}, Data da Venda: {DataVenda}, CPF do Cliente: {ClienteCPF}, Valor total: {ValorTotal} ";
         }
     }
 }
