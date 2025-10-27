@@ -18,6 +18,7 @@ internal class Program
         Customer customer = new();
         Supplier supplier = new();
         Purchase purchase = new();
+        PurchaseItem purchaseItem = new();
 
         void Menu()
         {
@@ -35,7 +36,8 @@ internal class Program
                 Console.WriteLine("6 - Opções de Venda");
                 Console.WriteLine("7 - Opções de Item Venda");
                 Console.WriteLine("8 - Opções de Fornecedor");
-                Console.WriteLine("9 - Opções de Purchase");
+                Console.WriteLine("9 - Opções de Purchase Items");
+                Console.WriteLine("10 - Opções de Purchase");
                 Console.WriteLine("0 - Sair");
 
                 opcao = int.Parse(Console.ReadLine()!);
@@ -67,9 +69,10 @@ internal class Program
                         supplier.MenuPrincipal();
                         break;
                     case 9:
-                        purchase.PurchaseMenu();
+                        purchaseItem.PurchaseItemMenu();
                         break;
                     case 10:
+                        purchase.PurchaseMenu();
                         break;
                     case 0:
                         Console.WriteLine("Encerrando programa. Obrigado!");

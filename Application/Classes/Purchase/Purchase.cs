@@ -12,9 +12,7 @@ namespace Application.Classes.Purchase
 {
     public class Purchase
     {
-        //Writer_Reader objeto = new();
-
-        public List<Purchase> Purchases = new();
+        public static List<Purchase> Purchases = new();
 
         public string? Id { get; private set; }
         public string? IdCompra { get; private set; }
@@ -67,14 +65,14 @@ namespace Application.Classes.Purchase
 
         private void PopularLista()
         {
-            if (!File.Exists(fullPath)) return; // segurança extra
+            if (!File.Exists(fullPath)) return;
 
             using StreamReader sr = new(fullPath);
             string? line;
 
             while ((line = sr.ReadLine()) != null)
             {
-                if (line.Length < 40) continue; // pula linhas inválidas/curtas
+                if (line.Length < 40) continue;
 
                 string id = line[..5].Trim();
                 string idCompra = line.Substring(5, 5).Trim();
@@ -145,11 +143,6 @@ namespace Application.Classes.Purchase
             writer.Close();
         }
 
-        //public static bool TemEsteCNPJ(string cnpj)
-        //{
-        //    return Supplier.Suppliers.Any(c => c.Cnpj == cnpj && c.Cnpj is not RestrictedSupplier.FornecedoresRestritos.Cnpj);
-        //}
-
         public static bool TemEsteCNPJ(string val)
         {
             bool existe = Supplier.Suppliers.Any(c => c.Cnpj == val);
@@ -203,7 +196,7 @@ namespace Application.Classes.Purchase
                 var item = PurchaseItem.PurchaseItems.Find(x => x.Id == idComprar);
                 if (item != null)
                 {
-                    total += item.ValorTotal;
+                    total += item.TotalItem;
                     count++;
                 }
                 else
@@ -234,7 +227,7 @@ namespace Application.Classes.Purchase
 
             if (purchaseMexido == null)
             {
-                Console.WriteLine("Produce não encontrado!");
+                Console.WriteLine("Purchase não encontrado!");
                 return null;
             }
 
