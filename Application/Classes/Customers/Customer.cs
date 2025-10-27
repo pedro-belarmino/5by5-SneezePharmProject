@@ -97,7 +97,7 @@ namespace Application
         }
 
 
-        public static void ClientMenu()
+        public void ClientMenu()
         {
             int opcao;
             do
@@ -140,7 +140,7 @@ namespace Application
                 }
             } while (opcao != 5);
         }
-        public static void CreatClient()
+        public void CreatClient()
         {
             Console.WriteLine("Cadastro de Cliente");
             bool cpfValido = false, idadeValida = false, telefoneValido = false;
@@ -293,7 +293,7 @@ namespace Application
 
             return nome;
         }
-        public static bool ValidateAge(DateOnly dataNascimento)
+        public bool ValidateAge(DateOnly dataNascimento)
         {
             bool idadeValida = false;
 

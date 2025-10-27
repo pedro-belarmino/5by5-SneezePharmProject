@@ -11,7 +11,7 @@ namespace Application
     public class Supplier
     {
         Writer_Reader objeto = new Writer_Reader();     // objeto para criar o arquivo
-        public static List<Supplier> Suppliers  = new List<Supplier>();
+        public static List<Supplier> Suppliers = new List<Supplier>();
         public string Cnpj { get; private set; }
         public string RazaoSocial { get; private set; }
         public string Pais { get; private set; }
@@ -64,7 +64,7 @@ namespace Application
 
                 if (string.IsNullOrEmpty(ultimoFornecimentoString))
                     ultimoFornecimento = DateOnly.MinValue;
-                else 
+                else
                 {
                     if (!DateOnly.TryParseExact(ultimoFornecimentoString, "ddMMyyyy", out ultimoFornecimento))
                         ultimoFornecimento = DateOnly.MinValue;
@@ -274,29 +274,29 @@ namespace Application
         private static void CadastrarFornecedor()
         {
             Console.Write("Informe o CNPJ: ");
-            string cnpj = Console.ReadLine();
+            string cnpj = Console.ReadLine()!;
             while (ValidarCnpj(cnpj) == false)
             {
                 Console.Write("Digite [S] para sair ou tente novamente: ");
-                cnpj = Console.ReadLine().ToUpper();
+                cnpj = Console.ReadLine()!.ToUpper();
                 if (cnpj == "S")
                     return;
             }
 
             Console.Write("\nInforme a Razão Social: ");
-            string razaoSocial = Console.ReadLine();
-            while (ValidarRazaoSocial(razaoSocial) == false)
+            string razaoSocial = Console.ReadLine()!;
+            while (ValidarRazaoSocial(razaoSocial!) == false)
             {
                 Console.Write("Tente novamente: ");
-                razaoSocial = Console.ReadLine();
+                razaoSocial = Console.ReadLine()!;
             }
 
             Console.Write("\nInforme o País: ");
-            string pais = (Console.ReadLine());
-            while (ValidarPais(pais) == false)
+            string pais = (Console.ReadLine()!);
+            while (ValidarPais(pais!) == false)
             {
                 Console.Write("Tente novamente: ");
-                pais = Console.ReadLine();
+                pais = Console.ReadLine()!;
             }
 
             Console.Write("\nData de abertura: ");
@@ -312,11 +312,11 @@ namespace Application
             Console.Write("\nData de cadastro: " + dataCadastro);
 
             Console.Write("\n\nSituação [A] Ativo [I] Inativo: ");
-            string entSt = Console.ReadLine();  
+            string entSt = Console.ReadLine()!;
             bool aux = char.TryParse(entSt, out char situacao);
             while (ValidarSituacao(situacao) == false)
             {
-                entSt = Console.ReadLine();
+                entSt = Console.ReadLine()!;
                 aux = char.TryParse(entSt, out situacao);
             }
 
@@ -353,7 +353,7 @@ namespace Application
                 Console.WriteLine(fornecedor.ToString());
                 return fornecedor;
             }
-            return null;
+            return null!;
         }
 
 
@@ -367,18 +367,18 @@ namespace Application
             else
                 ultimoFornecimentoString = UltimoFornecimento.ToString("dd/MM/yyyy");
 
-                return $"\nCNPJ: {Cnpj}" +
-                        $"\nRazão Social: {RazaoSocial}" +
-                        $"\nPaís: {Pais}" +
-                        $"\nData de Abertura: {DataAbertura:dd/MM/yyyy}" +
-                        $"\nData do última fornecimento: {ultimoFornecimentoString}" +
-                        $"\nData de cadastro: {DataCadastro:dd/MM/yyyy}" +
-                        $"\nSituação: {Situacao}";
+            return $"\nCNPJ: {Cnpj}" +
+                    $"\nRazão Social: {RazaoSocial}" +
+                    $"\nPaís: {Pais}" +
+                    $"\nData de Abertura: {DataAbertura:dd/MM/yyyy}" +
+                    $"\nData do última fornecimento: {ultimoFornecimentoString}" +
+                    $"\nData de cadastro: {DataCadastro:dd/MM/yyyy}" +
+                    $"\nSituação: {Situacao}";
         }
 
 
         // Método: Atualizar Fornecedor           | Opções: Situação e Razão Social
-        public static void AtualizarFornecedor()
+        public void AtualizarFornecedor()
         {
             int opcao;
             do
@@ -392,7 +392,7 @@ namespace Application
                 Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
                 Console.WriteLine();
                 Console.Write("  >>> Informe o menu desejado: ");
-                string entrada = Console.ReadLine();
+                string entrada = Console.ReadLine()!;
                 bool conversao = int.TryParse(entrada, out opcao);
                 Console.WriteLine();
 
@@ -400,17 +400,17 @@ namespace Application
                 {
                     case 1:
                         Console.Write("Informe o CNPJ que deseja buscar: ");
-                        string cnpj = Console.ReadLine();
-                        var fornec = FiltrarFornecedorCNPJ(cnpj);
+                        string cnpj = Console.ReadLine()!;
+                        var fornec = FiltrarFornecedorCNPJ(cnpj)!;
                         if (fornec is not null)
                         {
                             Console.Write("\nInforme a situação atualizado [A] Ativo [I] Inativo: ");
-                            string entSt = Console.ReadLine();
+                            string entSt = Console.ReadLine()!;
                             bool aux = char.TryParse(entSt, out char situacao);
                             while (ValidarSituacao(situacao) == false)
                             {
                                 Console.Write("Tente novamente: ");
-                                entrada = Console.ReadLine();
+                                entrada = Console.ReadLine()!;
                                 aux = char.TryParse(entrada, out situacao);
                             }
                             fornec.Situacao = situacao;
@@ -422,16 +422,16 @@ namespace Application
                         break;
                     case 2:
                         Console.Write("Informe o CNPJ que deseja buscar: ");
-                        string cnpjR = Console.ReadLine();
+                        string cnpjR = Console.ReadLine()!;
                         var fornecNome = FiltrarFornecedorCNPJ(cnpjR);
                         if (fornecNome is not null)
                         {
                             Console.Write("\nInforme a Razão Social: ");
-                            string razaoSocial = Console.ReadLine();
+                            string razaoSocial = Console.ReadLine()!;
                             while (ValidarRazaoSocial(razaoSocial) == false)
                             {
                                 Console.Write("Tente novamente: ");
-                                razaoSocial = Console.ReadLine();
+                                razaoSocial = Console.ReadLine()!;
                             }
                             fornecNome.RazaoSocial = razaoSocial;
                             Console.WriteLine("\nRazão Social atualizada com sucesso!");
@@ -455,7 +455,7 @@ namespace Application
 
 
         // Método: Menu Principal  > Aplicado o CRUD
-        public static void MenuPrincipal()
+        public void MenuPrincipal()
         {
             Supplier fornecedor = new Supplier();
             int opcao = 0;
@@ -471,7 +471,7 @@ namespace Application
                 Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
                 Console.WriteLine();
                 Console.Write("  >>> Informe o menu desejado: ");
-                string entrada = Console.ReadLine();
+                string entrada = Console.ReadLine()!;
                 bool conversao = int.TryParse(entrada, out opcao);
                 Console.WriteLine();
 
@@ -488,7 +488,7 @@ namespace Application
                         break;
                     case 4:
                         Console.Write("Informe o CNPJ que deseja buscar: ");
-                        string cnpj = Console.ReadLine();
+                        string cnpj = Console.ReadLine()!;
                         FiltrarFornecedorCNPJ(cnpj);
                         if (FiltrarFornecedorCNPJ(cnpj) == null)
                             Console.WriteLine("\nCNPJ não encontrado!");
