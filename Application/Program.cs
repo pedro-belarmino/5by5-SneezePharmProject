@@ -12,8 +12,11 @@ internal class Program
         Produce produce = new();
         ProduceItem produceItem = new();
         Sale venda = new();
+        SaleItens saleItens = new();
         Customer customer = new();
         RelatorioDeVendasPorPeriodo relatorioPorPeriodo = new();
+        Supplier supplier = new();
+
 
         void Menu()
         {
@@ -23,7 +26,7 @@ internal class Program
             {
                 Console.Clear();
                 Console.WriteLine("Escolha uma opção: ");
-                Console.WriteLine("1 - Opções de Cliente");
+                Console.WriteLine("1 - Opções de Cliente"); //finalizado
                 Console.WriteLine("2 - Opções de Princípios ativos: "); //feito
                 Console.WriteLine("3 - Opções de medicamento: ");// feito
                 Console.WriteLine("4 - Opções de Producao");// feito
@@ -31,6 +34,7 @@ internal class Program
                 Console.WriteLine("6 - Opções de Venda");// feito
                 Console.WriteLine("7 - Opções de Item Venda");// 
                 Console.WriteLine("8 - Relatório de vendas por período.");
+                Console.WriteLine("8 - Fornecedor");// feito
                 Console.WriteLine("9 - Sair");
 
                 opcao = int.Parse(Console.ReadLine()!);
@@ -57,6 +61,10 @@ internal class Program
                         break;
                     case 7:
                         relatorioPorPeriodo.BuscarVendas();
+                        saleItens.SaleItensMenu();
+                        break;
+                    case 8:
+                        supplier.MenuPrincipal();
                         break;
                     case 9:
                         Console.WriteLine("Encerrando programa. Obrigado!");

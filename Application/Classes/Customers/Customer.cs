@@ -14,7 +14,7 @@ namespace Application
     public class Customer
     {
         Writer_Reader objeto = new();
-        public List<Customer> Clientes = new ();
+        public List<Customer> Clientes = new();
         public RestrictedCustomer clienteRestrito { get; private set; } = new RestrictedCustomer();
         public string? Cpf { get; private set; }
         public string? Nome { get; private set; }
@@ -28,9 +28,8 @@ namespace Application
         static string file = "Customers.data";
         static string fullPath = Path.Combine(diretorio, file);
 
-        public Customer() 
+        public Customer()
         {
-
             objeto.Verificador(diretorio, fullPath);
             PopularLista();
         }
@@ -75,11 +74,11 @@ namespace Application
 
         }
 
-        private void SaveFile() 
+        private void SaveFile()
         {
             StreamWriter writer = new(fullPath);
 
-            foreach(Customer cliente in Clientes) 
+            foreach (Customer cliente in Clientes)
             {
                 string ultimaCompraFormatada = cliente.UltimaCompra.HasValue ? cliente.UltimaCompra.Value.ToString("ddMMyyyy") : new string(' ', 8);
 
@@ -141,7 +140,7 @@ namespace Application
                         SaveFile();
                         return;
                 }
-            } while (opcao != 5);
+            } while (opcao != 6);
         }
         public void CreatClient()
         {
@@ -175,7 +174,7 @@ namespace Application
                 if (dataValida)
                     idadeValida = ValidateAge(dataNascimento);
                 else
-                    Console.WriteLine("Formato de data inválido.");      
+                    Console.WriteLine("Formato de data inválido.");
 
             } while (idadeValida == false);
 
@@ -196,7 +195,7 @@ namespace Application
                 Console.WriteLine("Informe a situação do cliente: \n[A] Ativo [I] Inativo ");
                 string s = Console.ReadLine()!.ToUpper();
 
-                 situacao = ValidateSituation(s);
+                situacao = ValidateSituation(s);
 
             } while (situacao != 'I' && situacao != 'A');
 
@@ -213,7 +212,7 @@ namespace Application
             bool cpfValido = false;
 
             string cpfAjustado = cpf.PadLeft(11, '0');
-               
+
             if (SearchCPF(cpfAjustado) is null)
             {
                 bool apenasNumero = cpfAjustado.All(char.IsDigit);
@@ -276,7 +275,7 @@ namespace Application
                         if (cpfConvertidoChar[10] == 0)
                             cpfValido = true;
                     if (digVerificador2 == (int.Parse(cpfConvertidoChar[10].ToString())))
-                        cpfValido = true; 
+                        cpfValido = true;
                 }
             }
             if (cpfValido == false)
@@ -333,29 +332,29 @@ namespace Application
             return telefoneValido;
         }
 
-        public int ValidateMenu(string opcao, int min, int max) 
+        public int ValidateMenu(string opcao, int min, int max)
         {
             int o = 0;
             bool opcaoValida = opcao.All(char.IsDigit);
             if (opcaoValida)
             {
-                opcaoValida = int.TryParse(opcao, out o);   
+                opcaoValida = int.TryParse(opcao, out o);
                 if (opcaoValida == false)
                     Console.WriteLine("Escolha uma opcao valida do menu");
             }
-            
+
             return o;
 
         }
-        public char ValidateSituation(string situacao) 
+        public char ValidateSituation(string situacao)
         {
             char s;
             bool situacaoValida = char.TryParse(situacao, out s);
 
-                if (s != 'I' && s != 'A')
-                {
-                    Console.WriteLine("Situação deve ser [A] Ativo ou [I] Inativo");
-                }
+            if (s != 'I' && s != 'A')
+            {
+                Console.WriteLine("Situação deve ser [A] Ativo ou [I] Inativo");
+            }
             return s;
         }
 
@@ -364,7 +363,8 @@ namespace Application
             Console.Clear();
             int opcao;
             int min = 1, max = 3;
-            do {
+            do
+            {
                 Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
                 Console.WriteLine(" |                >      Cliente      <                |");
                 Console.WriteLine(" |-----------------------------------------------------|");
@@ -381,20 +381,20 @@ namespace Application
             if (opcao == 3)
                 return;
 
-                Console.Clear();
+            Console.Clear();
             Console.WriteLine("Informe o CPF para atualização: ");
             var pessoa = SearchCPF(Console.ReadLine()!);
-            while (pessoa is null) 
+            while (pessoa is null)
             {
-                Console.WriteLine("CPF não encontrado na relação de clientes"); 
+                Console.WriteLine("CPF não encontrado na relação de clientes");
                 Console.WriteLine("Informe o CPF para atualização: ");
                 pessoa = SearchCPF(Console.ReadLine()!);
             }
 
             Console.Clear();
-            Console.WriteLine(pessoa.ToString()+ "\n");
+            Console.WriteLine(pessoa.ToString() + "\n");
 
-            switch (opcao) 
+            switch (opcao)
             {
                 case 1:
                     char situacao;
@@ -404,38 +404,40 @@ namespace Application
                         string s = Console.ReadLine()!.ToUpper();
                         situacao = ValidateSituation(s);
 
-                        if(situacao == 'I' || situacao == 'A')
+                        if (situacao == 'I' || situacao == 'A')
                             pessoa.Situacao = situacao;
-                            Console.WriteLine("A Situação foi atualizado com sucesso");
+                        Console.WriteLine("A Situação foi atualizado com sucesso");
                         SaveFile();
                     } while (situacao != 'I' && situacao != 'A');
                     break;
                 case 2:
                     bool telefoneValido;
-                    do {
+                    do
+                    {
                         Console.WriteLine("Informe o telefone com DDD: ");
                         string t = Console.ReadLine()!;
                         telefoneValido = ValidatePhone(t);
-                        if(telefoneValido)
+                        if (telefoneValido)
                             pessoa.Telefone = t;
-                            Console.WriteLine("O telefone foi atualizado com sucesso");
+                        Console.WriteLine("O telefone foi atualizado com sucesso");
                         SaveFile();
                     } while (telefoneValido == false);
                     break;
             }
-  
+
         }
-        public void UpdateSaleDate(string cpf, DateOnly data) 
+        public void UpdateSaleDate(string cpf, DateOnly data)
         {
             var pessoa = SearchCPF(cpf)!;
 
             pessoa.UltimaCompra = data;
         }
 
-        public Customer? SearchCPF(string cpf) 
+        public Customer? SearchCPF(string cpf)
         {
             return Clientes.Find(c => c.Cpf == cpf);
         }
+
         public void ListClients()
         {
             Console.Clear();
@@ -448,7 +450,7 @@ namespace Application
                 Console.WriteLine(cliente.ToString() + "\n");
             }
         }
-        public bool SearchClient() 
+        public bool SearchClient()
         {
             Console.Clear();
             Console.WriteLine("Informe o CPF para busca: ");
@@ -467,7 +469,7 @@ namespace Application
                 Console.WriteLine(cliente.ToString());
                 status = true;
             }
-            return status;   
+            return status;
         }
         public override string ToString()
         {
@@ -479,6 +481,6 @@ namespace Application
                     $"\nData de cadastro: {DataCadastro}" +
                     $"\nSituação: {Situacao}";
         }
-        
+
     }
 }
