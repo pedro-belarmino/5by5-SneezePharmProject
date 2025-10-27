@@ -135,7 +135,7 @@ namespace Application.Classes.Purchase
 
         private static bool VerificaValorUnitario(decimal valor)
         {
-            if (valor <= 0 || valor >= 1000)
+            if (valor <= 0 && valor >= 1000)
                 return false;
             return true;
         }

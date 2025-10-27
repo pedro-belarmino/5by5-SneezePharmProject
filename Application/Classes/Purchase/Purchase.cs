@@ -25,7 +25,7 @@ namespace Application.Classes.Purchase
         static string file = "Purchase.data";
         string fullPath = Path.Combine(diretorio, file);
 
-        public Purchase() 
+        public Purchase()
         {
             Verificador(diretorio, fullPath);
             PopularLista();
@@ -134,7 +134,7 @@ namespace Application.Classes.Purchase
 
                 string fornecedorCNPJ = purchase.FornecedorCNPJ!.PadRight(14);
 
-                string valorTotal = purchase.ValorTotal.ToString("00000.00",CultureInfo.InvariantCulture).PadLeft(8);
+                string valorTotal = purchase.ValorTotal.ToString("00000.00", CultureInfo.InvariantCulture).PadLeft(8);
 
                 string dadoFinal = idFormatado + idCompraFormatado + dataCompraFormatado + fornecedorCNPJ + valorTotal;
 
@@ -203,16 +203,27 @@ namespace Application.Classes.Purchase
                 {
                     Console.WriteLine("Item não encontrado!");
                 }
-            }   
+            }
 
             Purchase pur = new(id, idCompra, dataCompra, fornecedorCNPJ, total);
 
             Purchases.Add(pur);
 
+            // var fornecedor = Supplier.Suppliers.Find(x => x.Cnpj == fornecedorCNPJ);
+            // if (fornecedor != null)
+            // {
+            //     fornecedor.UltimoFornecimento = DateOnly.FromDateTime(DateTime.Today);
+            // }
+
             var fornecedor = Supplier.Suppliers.Find(x => x.Cnpj == fornecedorCNPJ);
             if (fornecedor != null)
             {
-                fornecedor.UltimoFornecimento = DateOnly.FromDateTime(DateTime.Today);
+                fornecedor.UltimoFornecimento = DateOnly.FromDateTime(DateTime.Today); // tipo certo
+                Console.WriteLine("Último fornecimento atualizado com sucesso!");
+            }
+            else
+            {
+                Console.WriteLine("Fornecedor não encontrado!");
             }
 
             SaveFile();
