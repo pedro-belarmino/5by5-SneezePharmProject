@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -12,10 +13,8 @@ namespace Application.Classes
     public class RestrictedCustomer
 
     {
-        Writer_Reader objeto = new ();
-
-        private static List<RestrictedCustomer> ClientesBloqueados = new ();
-        public Customer? Clientes {  get; private set; }
+        Writer_Reader objeto = new();
+        private List<RestrictedCustomer> ClientesBloqueados = new ();
         public string? Cpf { get; private set; }
 
 
@@ -25,9 +24,6 @@ namespace Application.Classes
 
         public RestrictedCustomer()
         {
-            string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
-            string file = "RestrictedCustomers.data ";
-            string fullPath = Path.Combine(diretorio, file);
             objeto.Verificador(diretorio, fullPath);
             PopularLista();
         }
@@ -55,7 +51,7 @@ namespace Application.Classes
 
         }
 
-        private static void SaveFile()
+        private void SaveFile()
         {
             StreamWriter writer = new(fullPath);
 
@@ -71,7 +67,7 @@ namespace Application.Classes
 
 
 
-        public static void RestrictionsMenu() 
+        public void RestrictionsMenu() 
         {
             int opcao, min = 1, max = 5;
             do
@@ -87,7 +83,7 @@ namespace Application.Classes
                     Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
                     Console.WriteLine("\nInforme a opção desejada: ");
                     string op = Console.ReadLine()!;
-                    opcao = Customer.ValidateMenu(op, min, max);
+                    opcao = ValidateMenu(op, min, max);
 
                 } while (opcao < min && opcao > max);
 
@@ -108,12 +104,14 @@ namespace Application.Classes
                         break;
                     case 5:
                         SaveFile();
-                        return;
+                        Customer Cliente = new Customer();
+                        Cliente.ClientMenu();
+                        break;
                 }
-            } while (opcao != 0);
+            } while (opcao != 5);
         }
 
-        public static void BlockCustomer()
+        public void BlockCustomer()
         {
             Console.Clear();
             string cpf;
@@ -134,7 +132,7 @@ namespace Application.Classes
             {
                 Console.WriteLine("\nDeseja realmente restringir o cliente?\n[1] Sim [2] Não");
                 string op = Console.ReadLine()!;
-                opcao = Customer.ValidateMenu(op, min, max);
+                opcao = ValidateMenu(op, min, max);
             } while (opcao < 1 && opcao > 2);
 
             if (opcao == 2)
@@ -147,7 +145,7 @@ namespace Application.Classes
 
         }
 
-        public static void UnlockCustomer()
+        public void UnlockCustomer()
         {
             int opcao, min = 1, max = 2;
             string cpf;
@@ -177,7 +175,7 @@ namespace Application.Classes
             {
                 Console.WriteLine("\nDeseja realmente remover a restrição do cliente?\n[1] Sim [2] Não");
                 string op = Console.ReadLine()!;
-                opcao = Customer.ValidateMenu(op, min, max);
+                opcao = ValidateMenu(op, min, max);
             } while (opcao < 1 && opcao > 2);
 
             if (opcao == 2)
@@ -188,10 +186,13 @@ namespace Application.Classes
             SaveFile();
         }
 
-        public static bool SearchClientList(string cpf)
+        public bool SearchClientList(string cpf)
         {
+
+            Customer buscaCliente = new Customer();
+           
             bool cpfValido = false;
-            var cliente = Customer.SearchCPF(cpf);
+            var cliente = buscaCliente.SearchCPF(cpf);
 
             if (cliente is null)
                 Console.WriteLine("CPF não encontrado");
@@ -203,7 +204,7 @@ namespace Application.Classes
             return cpfValido;
         }
 
-        public static void ShowRestrictedClient() 
+        public  void ShowRestrictedClient() 
         {
             Console.Clear();
             Console.WriteLine("Informe CPF: ");
@@ -221,12 +222,12 @@ namespace Application.Classes
 
         }
 
-        public static RestrictedCustomer? SearchRestrictedClient(string cpf) 
+        public RestrictedCustomer? SearchRestrictedClient(string cpf) 
         {
             return ClientesBloqueados.Find(c => c.Cpf == cpf);
         }
 
-        public static void ListRestrictedClients()
+        public void ListRestrictedClients()
         {
             Console.Clear();
 
@@ -237,6 +238,21 @@ namespace Application.Classes
             {
                 Console.WriteLine(cliente.ToString());
             }
+        }
+
+        public int ValidateMenu(string opcao, int min, int max)
+        {
+            int o = 0;
+            bool opcaoValida = opcao.All(char.IsDigit);
+            if (opcaoValida)
+            {
+                opcaoValida = int.TryParse(opcao, out o);
+                if (opcaoValida == false)
+                    Console.WriteLine("Escolha uma opcao valida do menu");
+            }
+
+            return o;
+
         }
 
         public override string ToString()

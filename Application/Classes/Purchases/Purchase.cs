@@ -1,10 +1,11 @@
-﻿using System;
+﻿using Application.Classes.Production;
+using Application.Classes.Suppliers;
+using Application.Compra; 
+using Application.Utils.WritersAndReaders;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using Application.Compra; 
-using Application.Classes.Production;
-using Application.Utils.WritersAndReaders;
 
 namespace Application.Classes
 {
@@ -73,8 +74,6 @@ namespace Application.Classes
             return novoId;
         }
 
-
-
         public void PopularLista()
         {
             if (!File.Exists(fullPath))
@@ -89,9 +88,9 @@ namespace Application.Classes
                         continue;
 
                     string id = line.Substring(0, 5).Trim();
-                    string dataStr = line.Substring(5, 13).Trim();
-                    string cnpj = line.Substring(13, 27).Trim();
-                    string valorTotalStr = line.Substring(27, 38).Trim();
+                    string dataStr = line.Substring(5, 8).Trim();
+                    string cnpj = line.Substring(13, 14).Trim();
+                    string valorTotalStr = line.Substring(27, 12).Trim();
 
                     DateOnly dataCompra = DateOnly.ParseExact(dataStr, "ddMMyyyy");
                     decimal valorTotal = decimal.TryParse(valorTotalStr, NumberStyles.Any,
@@ -105,12 +104,31 @@ namespace Application.Classes
 
         public void CreatePurchase()
         {
-            Supplier fornecedor = new Supplier();   ///////////////////////////////////////////
+            Supplier fornecedor = new Supplier();   
 
             Console.Write("Informe o CNPJ do fornecedor: ");
             string cnpj = Console.ReadLine()!;
 
-            var fornecedorExistente = Supplier.Suppliers.Find(f => f.Cnpj == cnpj);
+            //verifica se fornecedor esta bloqueado
+            new RestrictedSupplier();
+            bool bloqueado = RestrictedSupplier.FornecedoresRestritos.Any(f => f.Cnpj.Trim() == cnpj);
+
+            if (bloqueado)
+            {
+                Console.WriteLine("Este fornecedor está bloqueado. Compra cancelada.");
+                return;
+            }
+
+            // verifica fornecedor na lista normal
+            new Supplier();
+            var fornecedorExistente = Supplier.Suppliers.Find(f => f.Cnpj.Trim() == cnpj);
+
+            int tempoAbertura = fornecedorExistente.DataAbertura.Year - DateTime.Now.Year;
+            if (tempoAbertura < 2)
+            {
+                Console.WriteLine("Fornecedor tem menos de 2 anos de empresa aberta.");
+                return;
+            }
 
             if (fornecedorExistente == null)
             {
@@ -124,10 +142,22 @@ namespace Application.Classes
                 return;
             }
 
+            PurchaseItem itensCompra = new PurchaseItem();  
+            itensCompra.Verificador();                   
+            Console.WriteLine("\n Itens disponíveis para compra: ");
+
+            if (itensCompra.PurchaseItems.Count > 0)
+            {
+                itensCompra.PrintPurchaseItem();            
+            }
+            else
+            {
+                Console.WriteLine("Nenhum item de compra foi encontrado.");
+            }
             string novoId = GerarIdUnico();
             DateOnly dataCompra = DateOnly.FromDateTime(DateTime.Now);
 
-            Console.WriteLine("\n--- Adicione até 3 itens à compra ---");
+            Console.WriteLine("\n Adicione até 3 itens à compra ");
             PurchaseItem purchaseItem = new PurchaseItem();
 
             int contador = 0;
@@ -154,7 +184,7 @@ namespace Application.Classes
 
             decimal valorTotal = 0;
             foreach (var item in ItensDaCompra)
-                valorTotal += item.TotalItem;
+            valorTotal += item.TotalItem;
 
             if (valorTotal >= 100000000m)
             {
@@ -162,7 +192,7 @@ namespace Application.Classes
                 return;
             }
 
-            fornecedorExistente.UltimoFornecimento = dataCompra;    //////////////////////////
+            fornecedorExistente.UltimoFornecimento = dataCompra;    ///////////////////////
 
             Purchase novaCompra = new Purchase(novoId, dataCompra, cnpj, valorTotal);
             Purchases.Add(novaCompra);
@@ -191,13 +221,14 @@ namespace Application.Classes
             Console.WriteLine("Deseja adicionar ou remover itens? (A/R): ");
             string opc = Console.ReadLine()!.ToUpper();
 
+
             if (opc == "A" && ItensDaCompra.Count < 3)
             {
-                PurchaseItem handler = new PurchaseItem();
-                handler.CreatePurchaseItem();
-                var novoItem = handler.PurchaseItems.LastOrDefault();
+                PurchaseItem operacao = new PurchaseItem();
+                operacao.CreatePurchaseItem();
+                var novoItem = operacao.PurchaseItems.LastOrDefault();
                 if (novoItem != null)
-                    ItensDaCompra.Add(novoItem);
+                ItensDaCompra.Add(novoItem);
             }
             else if (opc == "R")
             {
@@ -205,23 +236,18 @@ namespace Application.Classes
                 string idItem = Console.ReadLine()!;
                 var item = ItensDaCompra.Find(i => i.Id == idItem);
                 if (item != null)
-                    ItensDaCompra.Remove(item);
+                ItensDaCompra.Remove(item);
             }
-
+            //somando os valores
             compra.ValorTotal = ItensDaCompra.Sum(i => i.TotalItem);
             SaveFile();
         }
-
-
 
         public void PrintPurchases()
         {
             foreach (var compra in Purchases)
                 Console.WriteLine(compra);
         }
-
-
-
         public void SaveFile()
         {
             using (StreamWriter writer = new StreamWriter(fullPath))
@@ -231,7 +257,7 @@ namespace Application.Classes
                     string idFormatado = compra.Id.PadRight(5);
                     string dataFormatada = compra.DataCompra.ToString("ddMMyyyy");
                     string cnpjFormatado = compra.CnpjFornecedor.PadRight(14);
-                    string valorTotalFormatado = compra.ValorTotal.ToString("F2", CultureInfo.InvariantCulture).PadLeft(11);
+                    string valorTotalFormatado = compra.ValorTotal.ToString("F2", CultureInfo.InvariantCulture).PadLeft(12);
 
                     string linha = idFormatado + dataFormatada + cnpjFormatado + valorTotalFormatado;
                     writer.WriteLine(linha);
@@ -243,6 +269,43 @@ namespace Application.Classes
         {
             return $"ID: {Id}, Data: {DataCompra:dd/MM/yyyy}, Fornecedor: {CnpjFornecedor}, Valor Total: {ValorTotal:F2}";
         }
+
+        public void RelatorioComprasFornecedor() //extra
+        {
+            Console.Write("Informe o CNPJ do fornecedor: ");
+            string cnpj = Console.ReadLine()!.Trim();
+
+            
+            var fornecedorExistente = Supplier.Suppliers.Find(f => f.Cnpj.Trim() == cnpj);
+
+            if (fornecedorExistente == null)
+            {
+                Console.WriteLine("Fornecedor não encontrado.");
+                return;
+            }
+
+            //retorna uma nova lista contendo todas as compras.
+            var comprasDoFornecedor = Purchases.FindAll(p => p.CnpjFornecedor.Trim() == cnpj);
+
+            if (comprasDoFornecedor.Count == 0)
+            {
+                Console.WriteLine($"Não há compras registradas para o fornecedor {fornecedorExistente.RazaoSocial}.");
+                return;
+            }
+
+            Console.WriteLine($"\nRelatório de Compras do Fornecedor: {fornecedorExistente.RazaoSocial}");
+            decimal valorTotal = 0;
+
+            foreach (var compra in comprasDoFornecedor)
+            {
+                Console.WriteLine(compra); // Usa o ToString() da classe Purchase
+                valorTotal += compra.ValorTotal;
+            }
+
+            Console.WriteLine($"\nNúmero de compras: {comprasDoFornecedor.Count}");
+            Console.WriteLine($"Valor total comprado: {valorTotal:F2}");
+        }
+
         public void PurchaseMenu()
         {
             int opcao;
@@ -253,7 +316,8 @@ namespace Application.Classes
                 Console.WriteLine("2 - Encontrar compra");
                 Console.WriteLine("3 - Atualizar compra");
                 Console.WriteLine("4 - Listar todas as compras");
-                Console.WriteLine("5 - Sair");
+                Console.WriteLine("5 - Relatório de compras por fornecedor");
+                Console.WriteLine("6 - Sair");
                 Console.Write("Escolha uma opção: ");
                 opcao = int.Parse(Console.ReadLine()!);
 
@@ -272,13 +336,16 @@ namespace Application.Classes
                         PrintPurchases();
                         break;
                     case 5:
+                        RelatorioComprasFornecedor();
+                            break;
+                    case 6:
                         SaveFile();
                         return;
                     default:
                         Console.WriteLine("Opção inválida.");
                         break;
                 }
-            } while (opcao != 5);
+            } while (opcao != 6);
         }
     }
 }

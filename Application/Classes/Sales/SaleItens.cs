@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using Application.Classes.Medicamento;
 using Application.Utils.WritersAndReaders;
 
 namespace Application
@@ -10,7 +11,6 @@ namespace Application
     public class SaleItens
     {
         Writer_Reader objeto = new();
-
         public List<SaleItens> SaleItensList = new();
         public string Id { get; private set; }
         public int Quantidade { get; private set; }
@@ -40,6 +40,12 @@ namespace Application
             this.TotalItem = t;
         }
 
+        public bool VerificaCDB(string cdb)
+        {
+            var memedio = Medicine.medicines.Find(x => x.Cdb == cdb && x.situacao == 'A');
+            return memedio != null;
+        }
+
         public void CreateSaleItem()
         {
             lastId++;
@@ -52,8 +58,17 @@ namespace Application
             Console.WriteLine("Informe o valor unitário:");
             decimal valorUnit = decimal.Parse(Console.ReadLine()!, CultureInfo.InvariantCulture);
 
+
+            Medicine.medicines.Where(x => x.situacao == 'A').ToList().ForEach(x => Console.WriteLine(x));
+
             Console.WriteLine("Informe o código do medicamento:");
             string codMedicamento = Console.ReadLine()!;
+            while (!VerificaCDB(codMedicamento))
+            {
+                System.Console.WriteLine("Código não encontrado, digite outro: \n");
+                codMedicamento = Console.ReadLine()!;
+            }
+
 
             int totalItem = (int)(qtd * valorUnit);
 

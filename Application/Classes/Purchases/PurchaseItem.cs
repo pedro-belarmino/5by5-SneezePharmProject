@@ -14,9 +14,7 @@ namespace Application.Compra
 
         public List<PurchaseItem> PurchaseItems = new List<PurchaseItem>();
 
-        public string? Id { get; private set; }
-        public string? Nome { get; private set; }
-
+        public string Id { get; private set; }
         public string IdIngrediente { get; private set; }   //recebe do ingrediente
         public int Quantidade { get; private set; }
         public decimal ValorUnitario { get; private set; }
@@ -81,11 +79,10 @@ namespace Application.Compra
                         continue;                           //pule para a próx iteração
 
                     string id = line.Substring(0, 5).Trim();
-                    string nome = line.Substring(5, 25).Trim();
-                    string idIngrediente = line.Substring(25, 31).Trim();
-                    string quantidadeStr = line.Substring(31, 35).Trim();
-                    string valorUnitarioStr = line.Substring(35, 43).Trim();
-                    string totalItemStr = line.Substring(43, 51).Trim();
+                    string idIngrediente = line.Substring(5, 6).Trim();
+                    string quantidadeStr = line.Substring(11, 4).Trim();
+                    string valorUnitarioStr = line.Substring(15, 6).Trim();
+                    string totalItemStr = line.Substring(21, 12).Trim();
 
                     //tratanto inteiro para string
                     int quantidade = int.TryParse(quantidadeStr, out int q) ? q : 0;
@@ -94,7 +91,7 @@ namespace Application.Compra
                         System.Globalization.NumberStyles.Any, System.Globalization.
                         CultureInfo.InvariantCulture, out decimal vu) ? vu : 0m;
 
-                    PurchaseItem purchase = new PurchaseItem(id, nome, idIngrediente, quantidade, valorUnitario);
+                    PurchaseItem purchase = new PurchaseItem(id, idIngrediente, quantidade, valorUnitario);
                     PurchaseItems.Add(purchase);
                 }
             }
@@ -107,7 +104,7 @@ namespace Application.Compra
             Console.WriteLine("Arquivo e diretório criados com sucesso.");
             Verificador();
         }
-        public PurchaseItem(string id, string nome, string idIngrediente, int quantidade, decimal valorUnitario)
+        public PurchaseItem(string id, string idIngrediente, int quantidade, decimal valorUnitario)
         {
             if (quantidade <= 0 || quantidade > 9999)
                 throw new ArgumentException("Quantidade deve ser entre 1 e 9999.");
@@ -116,7 +113,6 @@ namespace Application.Compra
                 throw new ArgumentException("Valor unitário inválido.");
 
             Id = id;
-            Nome = nome;
             IdIngrediente = idIngrediente;
             Quantidade = quantidade;
             ValorUnitario = valorUnitario;
@@ -124,27 +120,23 @@ namespace Application.Compra
 
         public void CreatePurchaseItem()
         {
-            string Id = GerarIdUnico();
-            Console.WriteLine("ID gerado: " + Id);
-            Console.WriteLine();
+            string id = GerarIdUnico();
+            Console.WriteLine($"ID gerado: {id}\n");
 
-            Console.Write("Insira o nome do item: ");
-            string Nome = Console.ReadLine()!;
-            Console.WriteLine();
+            if (Ingredient.Ingredients.Count == 0)
+            {
+                Console.WriteLine("Nenhum ingrediente disponível.");
+                return;
+            }
 
+            Console.WriteLine("Ingredientes disponíveis:");
+            foreach (var ing in Ingredient.Ingredients)
+                Console.WriteLine(ing.ToString());
 
-            //integrando classe ingredient
-            Console.Write("Insira o id do ingrediente: ");
-            string IdIngrediente = Console.ReadLine()!;
-            Console.WriteLine();
+            Console.Write("\nInsira o ID do ingrediente: ");
+            string idIngrediente = Console.ReadLine()!;
 
-            // Instancia a classe Ingredient e carrega a lista
-            Ingredient buscandoIngrediente = new Ingredient();
-            buscandoIngrediente.Verificador();
-
-            // Busca o ingrediente correspondente
-            var ingrediente = buscandoIngrediente.Ingredients.Find(i => i.Id == IdIngrediente);
-
+            var ingrediente = Ingredient.Ingredients.Find(i => i.Id == idIngrediente);
             if (ingrediente == null)
             {
                 Console.WriteLine("Ingrediente não encontrado. Operação cancelada.");
@@ -153,10 +145,9 @@ namespace Application.Compra
 
             if (ingrediente.situacao == 'I')
             {
-                Console.WriteLine($" O ingrediente '{ingrediente.Nome}' está inativo e não pode ser usado em compras.");
+                Console.WriteLine($"Ingrediente '{ingrediente.Nome}' está inativo e não pode ser usado.");
                 return;
             }
-
 
             Console.Write("Insira a quantidade de itens: ");
             int Quantidade = int.Parse(Console.ReadLine());
@@ -166,9 +157,9 @@ namespace Application.Compra
             decimal ValorUnitario = decimal.Parse(Console.ReadLine());
             Console.WriteLine();
 
-            ////////////////////////////////////////////////////**Total item
+            PurchaseItem NovoPurchaseItem = new(Id, IdIngrediente, Quantidade, ValorUnitario);
 
-            PurchaseItem NovoPurchaseItem = new(Id, Nome, IdIngrediente, Quantidade, ValorUnitario); //TotalItem);
+            Console.WriteLine($"Total do item: {NovoPurchaseItem.TotalItem:F2}");
 
             PurchaseItems.Add(NovoPurchaseItem);
 
@@ -189,9 +180,6 @@ namespace Application.Compra
             var updatedPurchaseItem = FindPurchaseItem();
             if (updatedPurchaseItem == null)
                 return null;
-
-            Console.Write("Informe o novo nome do item: ");
-            updatedPurchaseItem.Nome = Console.ReadLine()!;
             Console.Write("Informe a nova quantidade: ");
             updatedPurchaseItem.Quantidade = int.Parse(Console.ReadLine()!);
 
@@ -199,27 +187,24 @@ namespace Application.Compra
             return updatedPurchaseItem;
         }
 
-
         public void PrintPurchaseItem()
         {
             foreach (var purchaseItem in PurchaseItems)
                 Console.WriteLine(purchaseItem);
         }
 
-
         public void SaveFile()
         {
             StreamWriter writer = new StreamWriter(fullPath);
             foreach (var purchaseItem in PurchaseItems)
             {
-                string idFormatado = purchaseItem.Id!.PadRight(5);
-                string nomeFormatado = purchaseItem.Nome!.PadRight(20);
-                string idIngredienteFormatado = purchaseItem.IdIngrediente.ToString();
-                string quantidadeFormatado = purchaseItem.Quantidade.ToString("D4").PadLeft(4);
-                string valorUnitarioFormatado = purchaseItem.ValorUnitario.ToString("F2").PadLeft(8); // 999.99
-                string totalItemFormatado = purchaseItem.TotalItem.ToString("F2").PadLeft(8);         // 99999.99
-
-                string dadoFinal = idFormatado + nomeFormatado + idIngredienteFormatado + quantidadeFormatado + valorUnitarioFormatado + totalItemFormatado;
+                string idFormatado = purchaseItem.Id!.PadRight(5);                         
+                string idIngredienteFormatado = purchaseItem.IdIngrediente.PadRight(6);   
+                string quantidadeFormatado = purchaseItem.Quantidade.ToString("D4");       
+                string valorUnitarioFormatado = purchaseItem.ValorUnitario.ToString("F2").PadLeft(6); //99.99
+                string totalItemFormatado = purchaseItem.TotalItem.ToString("F2").PadLeft(12);       //9999.99
+                                                                                                     // 99999.99
+                string dadoFinal = idFormatado + idIngredienteFormatado + quantidadeFormatado + valorUnitarioFormatado + totalItemFormatado;
 
                 writer.WriteLine(dadoFinal);
             }
@@ -228,7 +213,7 @@ namespace Application.Compra
 
         public override string ToString()
         {
-            return $"ID: {Id}, Nome: {Nome}  IdIngrediente:  {IdIngrediente} Quantidade: {Quantidade}  ValorUnitario: {ValorUnitario}  TotalItem: {TotalItem:2}";
+            return $"ID: {Id}, IdIngrediente:  {IdIngrediente} Quantidade: {Quantidade}  ValorUnitario: {ValorUnitario}  TotalItem: {TotalItem:2}";
         }
 
         public void PurchaseItemMenu()

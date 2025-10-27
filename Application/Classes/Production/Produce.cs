@@ -10,7 +10,7 @@ namespace Application.Classes.Production
     {
         Writer_Reader objeto = new();
 
-        public static List<Produce> Produces = [];
+        public static List<Produce> Produces = new List<Produce>();
 
         public string? Id { get; private set; }
         public DateOnly DataProducao { get; private set; }
@@ -20,7 +20,7 @@ namespace Application.Classes.Production
 
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Produce.data";
-        string fullPath = Path.Combine(diretorio, file);
+        static string fullPath = Path.Combine(diretorio, file);
 
         public Produce()
         {
@@ -86,7 +86,7 @@ namespace Application.Classes.Production
         private void CreateProduce()
         {
             lastId++;
-            string id = $"{lastId}";
+            string id = lastId.ToString("D5");
             Console.WriteLine($"ID: {lastId}");
             Console.WriteLine();
 
@@ -157,14 +157,14 @@ namespace Application.Classes.Production
             return produceMexido;
         }
 
-        private Produce UpdateProduce()
+        private Produce? UpdateProduce()
         {
             var UpdatedProduce = FindProduce();
 
             if (UpdatedProduce == null)
             {
                 Console.WriteLine("Não foi possivel atualizar - Produce não encontrado.");
-                return null!;
+                return null;
             }
 
             Console.Write("informe a nova quantidade fabricada: ");
@@ -188,7 +188,7 @@ namespace Application.Classes.Production
             return true;
         }
 
-        private static bool VerificaCDB(string cdb)
+        public bool VerificaCDB(string cdb)
         {
             var memedio = Medicine.medicines.Find(x => x.Cdb == cdb && x.situacao == 'A');
             return memedio != null;
@@ -222,7 +222,7 @@ namespace Application.Classes.Production
                         FindProduce();
                         break;
                     case 3:
-                        UpdateProduce();///////////// arrumar isso
+                        UpdateProduce(); /*OK*/
                         break;
                     case 4:
                         PrintProduces();
