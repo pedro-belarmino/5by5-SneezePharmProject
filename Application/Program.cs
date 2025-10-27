@@ -13,6 +13,7 @@ internal class Program
         ProduceItem produceItem = new();
         Sale venda = new();
         Customer customer = new();
+        RelatorioDeVendasPorPeriodo relatorioPorPeriodo = new();
 
         void Menu()
         {
@@ -29,6 +30,7 @@ internal class Program
                 Console.WriteLine("5 - Opções de Item de Producao");
                 Console.WriteLine("6 - Opções de Venda");// feito
                 Console.WriteLine("7 - Opções de Item Venda");// 
+                Console.WriteLine("8 - Relatório de vendas por período.");
                 Console.WriteLine("9 - Sair");
 
                 opcao = int.Parse(Console.ReadLine()!);
@@ -52,6 +54,9 @@ internal class Program
                         break;
                     case 6:
                         venda.SaleMenu();
+                        break;
+                    case 7:
+                        relatorioPorPeriodo.BuscarVendas();
                         break;
                     case 9:
                         Console.WriteLine("Encerrando programa. Obrigado!");
