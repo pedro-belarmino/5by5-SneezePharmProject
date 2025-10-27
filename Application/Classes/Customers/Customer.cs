@@ -13,7 +13,7 @@ namespace Application
 {
     public class Customer
     {
-        Writer_Reader objeto = new();
+        Writer_Reader objeto = new ();
         public List<Customer> Clientes = new ();
         public RestrictedCustomer clienteRestrito { get; private set; } = new RestrictedCustomer();
         public string? Cpf { get; private set; }
@@ -30,7 +30,6 @@ namespace Application
 
         public Customer() 
         {
-
             objeto.Verificador(diretorio, fullPath);
             PopularLista();
         }
@@ -436,6 +435,7 @@ namespace Application
         {
             return Clientes.Find(c => c.Cpf == cpf);
         }
+        
         public void ListClients()
         {
             Console.Clear();

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -12,10 +13,8 @@ namespace Application.Classes
     public class RestrictedCustomer
 
     {
-        Writer_Reader objeto = new ();
-
+        Writer_Reader objeto = new();
         private List<RestrictedCustomer> ClientesBloqueados = new ();
-        public Customer? Clientes {  get; private set; }
         public string? Cpf { get; private set; }
 
 
@@ -84,7 +83,7 @@ namespace Application.Classes
                     Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
                     Console.WriteLine("\nInforme a opção desejada: ");
                     string op = Console.ReadLine()!;
-                    opcao = Clientes.ValidateMenu(op, min, max);
+                    opcao = ValidateMenu(op, min, max);
 
                 } while (opcao < min && opcao > max);
 
@@ -105,9 +104,11 @@ namespace Application.Classes
                         break;
                     case 5:
                         SaveFile();
-                        return;
+                        Customer Cliente = new Customer();
+                        Cliente.ClientMenu();
+                        break;
                 }
-            } while (opcao != 0);
+            } while (opcao != 5);
         }
 
         public void BlockCustomer()
@@ -131,7 +132,7 @@ namespace Application.Classes
             {
                 Console.WriteLine("\nDeseja realmente restringir o cliente?\n[1] Sim [2] Não");
                 string op = Console.ReadLine()!;
-                opcao = Clientes.ValidateMenu(op, min, max);
+                opcao = ValidateMenu(op, min, max);
             } while (opcao < 1 && opcao > 2);
 
             if (opcao == 2)
@@ -174,7 +175,7 @@ namespace Application.Classes
             {
                 Console.WriteLine("\nDeseja realmente remover a restrição do cliente?\n[1] Sim [2] Não");
                 string op = Console.ReadLine()!;
-                opcao = Clientes.ValidateMenu(op, min, max);
+                opcao = ValidateMenu(op, min, max);
             } while (opcao < 1 && opcao > 2);
 
             if (opcao == 2)
@@ -187,8 +188,11 @@ namespace Application.Classes
 
         public bool SearchClientList(string cpf)
         {
+
+            Customer buscaCliente = new Customer();
+           
             bool cpfValido = false;
-            var cliente = Clientes.SearchCPF(cpf);
+            var cliente = buscaCliente.SearchCPF(cpf);
 
             if (cliente is null)
                 Console.WriteLine("CPF não encontrado");
@@ -234,6 +238,21 @@ namespace Application.Classes
             {
                 Console.WriteLine(cliente.ToString());
             }
+        }
+
+        public int ValidateMenu(string opcao, int min, int max)
+        {
+            int o = 0;
+            bool opcaoValida = opcao.All(char.IsDigit);
+            if (opcaoValida)
+            {
+                opcaoValida = int.TryParse(opcao, out o);
+                if (opcaoValida == false)
+                    Console.WriteLine("Escolha uma opcao valida do menu");
+            }
+
+            return o;
+
         }
 
         public override string ToString()
