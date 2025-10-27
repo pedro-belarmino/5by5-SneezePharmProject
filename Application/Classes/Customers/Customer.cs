@@ -1,4 +1,5 @@
-﻿using Application.Utils.WritersAndReaders;
+﻿using Application.Classes;
+using Application.Utils.WritersAndReaders;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -13,7 +14,8 @@ namespace Application
     public class Customer
     {
         Writer_Reader objeto = new();
-        public static List<Customer> Clientes = new ();
+        public List<Customer> Clientes = new ();
+        public RestrictedCustomer clienteRestrito { get; private set; } = new RestrictedCustomer();
         public string? Cpf { get; private set; }
         public string? Nome { get; private set; }
         public DateOnly DataNascimento { get; private set; }
@@ -28,9 +30,7 @@ namespace Application
 
         public Customer() 
         {
-            string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
-            string file = "Customers.data";
-            string fullPath = Path.Combine(diretorio, file);
+
             objeto.Verificador(diretorio, fullPath);
             PopularLista();
         }
@@ -41,7 +41,7 @@ namespace Application
             Nome = nome;
             DataNascimento = dataNascimento;
             Telefone = telefone;
-            UltimaCompra = null;
+            UltimaCompra = ultimaCompra;
             DataCadastro = dataCadastro;
             Situacao = situacao;
         }
@@ -75,7 +75,7 @@ namespace Application
 
         }
 
-        private static void SaveFile() 
+        private void SaveFile() 
         {
             StreamWriter writer = new(fullPath);
 
@@ -102,7 +102,7 @@ namespace Application
             int opcao;
             do
             {
-                int min = 1, max = 5;
+                int min = 1, max = 6;
                 do
                 {
                     Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
@@ -110,7 +110,7 @@ namespace Application
                     Console.WriteLine(" |-------------------------------------------------------------|");
                     Console.WriteLine(" |  [ 1 ] Cadastrar Cliente      |  [ 2 ] Atualizar Cliente    |");
                     Console.WriteLine(" |  [ 3 ] Listar Clientes        |  [ 4 ] Filtrar Cliente      |");
-                    Console.WriteLine(" |  [ 5 ] Voltar                 |                             |");
+                    Console.WriteLine(" |  [ 5 ] Cliente Restrito       |  [ 6 ] Voltar               |");
                     Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
                     Console.WriteLine("\nInforme a opção desejada: ");
                     string op = Console.ReadLine()!;
@@ -130,11 +130,14 @@ namespace Application
                         ListClients();
                         break;
                     case 4:
-                        int status = SearchClient();
-                        if (status == 0)
+                        bool status = SearchClient();
+                        if (status == false)
                             ClientMenu();
                         break;
                     case 5:
+                        clienteRestrito.RestrictionsMenu();
+                        break;
+                    case 6:
                         SaveFile();
                         return;
                 }
@@ -205,7 +208,7 @@ namespace Application
             Console.Clear();
 
         }
-        public static bool ValidateCPF(string cpf)
+        public bool ValidateCPF(string cpf)
         {
             bool cpfValido = false;
 
@@ -224,7 +227,7 @@ namespace Application
 
             return cpfValido;
         }
-        public static bool ValidateCpfMathematically(string cpf)
+        public bool ValidateCpfMathematically(string cpf)
         {
             char[] cpfConvertidoChar = cpf.ToCharArray();
 
@@ -281,7 +284,7 @@ namespace Application
 
             return cpfValido;
         }
-        public static string AdjustCharacterLimit(string nome, int limite)
+        public string AdjustCharacterLimit(string nome, int limite)
 
         {
             if (string.IsNullOrEmpty(nome))
@@ -314,7 +317,7 @@ namespace Application
 
             return idadeValida;
         }
-        public static bool ValidatePhone(string telefone)
+        public bool ValidatePhone(string telefone)
         {
             bool telefoneValido = false;
 
@@ -330,7 +333,7 @@ namespace Application
             return telefoneValido;
         }
 
-        public static int ValidateMenu(string opcao, int min, int max) 
+        public int ValidateMenu(string opcao, int min, int max) 
         {
             int o = 0;
             bool opcaoValida = opcao.All(char.IsDigit);
@@ -344,7 +347,7 @@ namespace Application
             return o;
 
         }
-        public static char ValidateSituation(string situacao) 
+        public char ValidateSituation(string situacao) 
         {
             char s;
             bool situacaoValida = char.TryParse(situacao, out s);
@@ -356,7 +359,7 @@ namespace Application
             return s;
         }
 
-        public static void UpdateClient()
+        public void UpdateClient()
         {
             Console.Clear();
             int opcao;
@@ -422,18 +425,18 @@ namespace Application
             }
   
         }
-        public static void UpdateSaleDate(string cpf, DateOnly data) 
+        public void UpdateSaleDate(string cpf, DateOnly data) 
         {
-            var pessoa = SearchCPF(cpf);
+            var pessoa = SearchCPF(cpf)!;
 
             pessoa.UltimaCompra = data;
         }
 
-        public static Customer? SearchCPF(string cpf) 
+        public Customer? SearchCPF(string cpf) 
         {
             return Clientes.Find(c => c.Cpf == cpf);
         }
-        public static void ListClients()
+        public void ListClients()
         {
             Console.Clear();
 
@@ -445,13 +448,13 @@ namespace Application
                 Console.WriteLine(cliente.ToString() + "\n");
             }
         }
-        public static int SearchClient() 
+        public bool SearchClient() 
         {
             Console.Clear();
             Console.WriteLine("Informe o CPF para busca: ");
             string cpf = Console.ReadLine()!;
 
-            int status = 0;
+            bool status = false;
             var cliente = SearchCPF(cpf);
 
             if (cpf is null || cliente is null)
@@ -460,9 +463,11 @@ namespace Application
                 return status;
             }
             else
+            {
                 Console.WriteLine(cliente.ToString());
-            return status = 1;
-            
+                status = true;
+            }
+            return status;   
         }
         public override string ToString()
         {
