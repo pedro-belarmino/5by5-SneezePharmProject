@@ -9,7 +9,7 @@ using System.Globalization;
 
 namespace Application.Classes.Medicamento
 {
-    internal class Medicine
+    public class Medicine
     {
         Writer_Reader objeto = new Writer_Reader();
 
