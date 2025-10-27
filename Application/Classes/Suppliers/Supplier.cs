@@ -16,7 +16,7 @@ namespace Application
         public string RazaoSocial { get; private set; }
         public string Pais { get; private set; }
         public DateOnly DataAbertura { get; private set; }
-        public DateOnly UltimoFornecimento { get; private set; }
+        public DateOnly UltimoFornecimento { get; set; }
         public DateOnly DataCadastro { get; private set; }
         public char Situacao { get; private set; }
 
@@ -107,14 +107,14 @@ namespace Application
 
 
         // Método: Verificar se existe algum CNPJ com base ao parâmetro
-        private static bool TemEsteCNPJ(string cnpj)
+        public static bool TemEsteCNPJ(string cnpj)
         {
             return Suppliers.Exists(c => c.Cnpj == cnpj);
         }
 
 
         // Método: Validar o CNPJ
-        private static bool ValidarCnpj(string cnpj)
+        public static bool ValidarCnpj(string cnpj)
         {
             bool ehApenasNumero = cnpj.All(char.IsDigit);
             char[] letras = cnpj.ToCharArray();
