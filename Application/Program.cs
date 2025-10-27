@@ -1,7 +1,9 @@
 using Application;
+using Application.Classes;
 using Application.Classes.Medicamento;
 using Application.Classes.Production;
 using Application.Classes.Sales;
+using Application.Compra;
 
 internal class Program
 {
@@ -14,8 +16,11 @@ internal class Program
         Sale venda = new();
         SaleItens saleItens = new();
         Customer customer = new();
-        RelatorioDeVendasPorPeriodo relatorioPorPeriodo = new();
+
         Supplier supplier = new();
+        Purchase purchase = new();
+        PurchaseItem purchaseItem = new();
+
 
 
         void Menu()
@@ -31,11 +36,13 @@ internal class Program
                 Console.WriteLine("3 - Opções de medicamento: ");// feito
                 Console.WriteLine("4 - Opções de Producao");// feito
                 Console.WriteLine("5 - Opções de Item de Producao");
-                Console.WriteLine("6 - Opções de Venda");// feito
+                Console.WriteLine("6 - Opções de Venda");// finalizado
                 Console.WriteLine("7 - Opções de Item Venda");// 
-                Console.WriteLine("8 - Relatório de vendas por período.");
-                Console.WriteLine("8 - Fornecedor");// feito
-                Console.WriteLine("9 - Sair");
+                Console.WriteLine("8 - Opções de Fornecedor");// 
+                Console.WriteLine("9 - Opções de Item Compra");// 
+                Console.WriteLine("10 - Opções de Compra");// 
+                Console.WriteLine("0 - Sair");
+
 
                 opcao = int.Parse(Console.ReadLine()!);
 
@@ -60,13 +67,18 @@ internal class Program
                         venda.SaleMenu();
                         break;
                     case 7:
-                        relatorioPorPeriodo.BuscarVendas();
                         saleItens.SaleItensMenu();
                         break;
                     case 8:
                         supplier.MenuPrincipal();
                         break;
                     case 9:
+                        purchaseItem.PurchaseItemMenu();
+                        break;
+                    case 10:
+                        purchase.PurchaseMenu();
+                        break;
+                    case 0:
                         Console.WriteLine("Encerrando programa. Obrigado!");
                         break;
                     default:
@@ -74,7 +86,7 @@ internal class Program
                         break;
                 }
 
-            } while (opcao != 9);
+            } while (opcao != 0);
         }
 
         Menu();

@@ -25,7 +25,7 @@ namespace Application.Classes.Sales
         string fullPath = Path.Combine(diretorio, file);
 
         private int lastId = 0;
-
+        RelatorioDeVendasPorPeriodo relatorioPorPeriodo = new();
         public Sale()
         {
             objeto.Verificador(diretorio, fullPath);
@@ -129,7 +129,8 @@ namespace Application.Classes.Sales
 
         private bool personExists(string cpf)
         {
-            var pessoa = person.SearchCPF(cpf);
+            var normalized = Customer.NormalizeCpf(cpf);
+            var pessoa = person.SearchCPF(normalized);
             return pessoa != null;
         }
 
@@ -231,7 +232,8 @@ namespace Application.Classes.Sales
                 Console.WriteLine("2 - Encontrar venda: ");
                 Console.WriteLine("3 - Alterar venda: ");
                 Console.WriteLine("4 - Imprimir todas as vendas: ");
-                Console.WriteLine("5 - Sair");
+                Console.WriteLine("5 - Mostrar Relatorio: ");
+                Console.WriteLine("6 - Sair");
                 op = int.Parse(Console.ReadLine()!);
 
                 switch (op)
@@ -249,6 +251,9 @@ namespace Application.Classes.Sales
                         PrintSale();
                         break;
                     case 5:
+                        relatorioPorPeriodo.BuscarVendas();
+                        break;
+                    case 6:
                         SaveFile();
                         return;
                     default:
