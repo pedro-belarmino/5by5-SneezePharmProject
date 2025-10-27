@@ -1,8 +1,14 @@
-﻿using System;
+﻿using Application.Classes.Medicamento;
+using Application.Utils;
+using Application.Utils.WritersAndReaders;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+
+using System.Reflection.Metadata.Ecma335;
+
 using System.Xml;
 using Application.Classes.Medicamento;
 using Application.Utils;
@@ -19,13 +25,14 @@ namespace Application.Classes.Sales
         public DateOnly DataVenda { get; private set; }
         public string ClienteCPF { get; private set; }
         public decimal ValorTotal { get; private set; }
+        public List<Medicine> RelatorioDeVendasPorCDB { get; private set; } = new List<Medicine>();
 
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Sales.data";
         string fullPath = Path.Combine(diretorio, file);
 
         private int lastId = 0;
-
+        RelatorioDeVendasPorPeriodo relatorioPorPeriodo = new();
         public Sale()
         {
             objeto.Verificador(diretorio, fullPath);
@@ -129,7 +136,8 @@ namespace Application.Classes.Sales
 
         private bool personExists(string cpf)
         {
-            var pessoa = person.SearchCPF(cpf);
+            var normalized = Customer.NormalizeCpf(cpf);
+            var pessoa = person.SearchCPF(normalized);
             return pessoa != null;
         }
 
@@ -231,7 +239,8 @@ namespace Application.Classes.Sales
                 Console.WriteLine("2 - Encontrar venda: ");
                 Console.WriteLine("3 - Alterar venda: ");
                 Console.WriteLine("4 - Imprimir todas as vendas: ");
-                Console.WriteLine("5 - Sair");
+                Console.WriteLine("5 - Mostrar Relatorio: ");
+                Console.WriteLine("6 - Sair");
                 op = int.Parse(Console.ReadLine()!);
 
                 switch (op)
@@ -249,6 +258,9 @@ namespace Application.Classes.Sales
                         PrintSale();
                         break;
                     case 5:
+                        relatorioPorPeriodo.BuscarVendas();
+                        break;
+                    case 6:
                         SaveFile();
                         return;
                     default:
@@ -262,6 +274,41 @@ namespace Application.Classes.Sales
         {
             return " --------------------------------------------------------------------------------- \n " +
             $"ID: {IdVenda}, Data da Venda: {DataVenda}, CPF do Cliente: {ClienteCPF}, Valor total: {ValorTotal} ";
+        }
+
+
+
+        public void RelatorioVendaMedicamentos()
+        {
+            Console.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+            Console.WriteLine("         Relatório de Medicamentos Mais Vendidos         ");
+            Console.WriteLine("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+            Console.WriteLine();
+
+            List<string> cdbs = new List<string>();
+
+            Console.WriteLine("   CDB   \t    Nome    \tQuantidade\n");
+
+            foreach (var v in Sales)
+            {
+                foreach (var item in v.RelatorioDeVendasPorCDB)
+                {
+                    if (string.IsNullOrEmpty(item.Cdb) || cdbs.Contains(item.Cdb))
+                        continue;
+
+                    int qtdd = 0;
+                    foreach (var venda in Sales)
+                    {
+                        foreach (var m in venda.RelatorioDeVendasPorCDB)
+                        {
+                            if (m.Cdb == item.Cdb)
+                                qtdd++;
+                        }
+                    }
+                    Console.WriteLine($"{item.Cdb}\t{item.Nome}\t{qtdd}");
+                    cdbs.Add(item.Cdb);
+                }
+            }
         }
     }
 }

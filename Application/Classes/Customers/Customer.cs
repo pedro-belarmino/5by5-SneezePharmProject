@@ -433,6 +433,20 @@ namespace Application
             pessoa.UltimaCompra = data;
         }
 
+        public static string NormalizeCpf(string cpf)
+        {
+            if (cpf == null) return "";
+            var digits = new string(cpf.Where(char.IsDigit).ToArray());
+            return digits.PadLeft(11, '0');
+        }
+
+        public Customer? SearchCPFForSale(string cpf)
+        {
+            var normalized = NormalizeCpf(cpf);
+            return Clientes.Find(c => NormalizeCpf(c.Cpf) == normalized);
+        }
+
+
         public Customer? SearchCPF(string cpf)
         {
             return Clientes.Find(c => c.Cpf == cpf);
