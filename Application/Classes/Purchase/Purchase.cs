@@ -162,7 +162,7 @@ namespace Application.Classes.Purchase
                 {
                     Console.WriteLine("Item não encontrado!");
                 }
-            }
+            }   
 
             Purchase pur = new(id, idCompra, dataCompra, fornecedorCNPJ, total);
 
