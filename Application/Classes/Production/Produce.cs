@@ -188,7 +188,7 @@ namespace Application.Classes.Production
             return true;
         }
 
-        private static bool VerificaCDB(string cdb)
+        public bool VerificaCDB(string cdb)
         {
             var memedio = Medicine.medicines.Find(x => x.Cdb == cdb && x.situacao == 'A');
             return memedio != null;

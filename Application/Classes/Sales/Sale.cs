@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using Application.Classes.Medicamento;
 using Application.Utils;
 using Application.Utils.WritersAndReaders;
 
@@ -56,6 +57,13 @@ namespace Application.Classes.Sales
             System.Console.WriteLine("Insira o cpf do cliente");
             string cpf = Console.ReadLine()!;
             System.Console.WriteLine();
+
+
+
+
+
+
+
 
             System.Console.WriteLine("valor total");
             decimal vt = decimal.Parse(Console.ReadLine()!);

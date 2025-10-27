@@ -12,6 +12,7 @@ internal class Program
         Produce produce = new();
         ProduceItem produceItem = new();
         Sale venda = new();
+        SaleItens saleItens = new();
         Customer customer = new();
 
         void Menu()
@@ -52,6 +53,9 @@ internal class Program
                         break;
                     case 6:
                         venda.SaleMenu();
+                        break;
+                    case 7:
+                        saleItens.SaleItensMenu();
                         break;
                     case 9:
                         Console.WriteLine("Encerrando programa. Obrigado!");
