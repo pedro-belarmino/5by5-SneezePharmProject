@@ -1,4 +1,5 @@
 ﻿using Application.Classes.Production;
+using Application.Classes.Suppliers;
 using Application.Utils.WritersAndReaders;
 using System;
 using System.Collections.Generic;
@@ -96,9 +97,17 @@ namespace Application.Classes.Purchase
             writer.Close();
         }
 
-        public static bool TemEsteCNPJ(string cnpj)
+        //public static bool TemEsteCNPJ(string cnpj)
+        //{
+        //    return Supplier.Suppliers.Any(c => c.Cnpj == cnpj && c.Cnpj is not RestrictedSupplier.FornecedoresRestritos.Cnpj);
+        //}
+
+        public static bool TemEsteCNPJ(string val)
         {
-            return Supplier.Suppliers.Any(c => c.Cnpj == cnpj);
+            bool existe = Supplier.Suppliers.Any(c => c.Cnpj == val);
+            bool bloqueado = RestrictedSupplier.FornecedoresRestritos.Any(x => x.Cnpj == val);
+
+            return existe && !bloqueado;
         }
 
         private void CreatePurchase()
@@ -208,6 +217,11 @@ namespace Application.Classes.Purchase
             }
         }
 
+        public override string ToString()
+        {
+            return $"ID: {Id}, CompraID: {IdCompra}, Data: {DataCompra:dd/MM/yyyy}, Fornecedor: {FornecedorCNPJ}, Total: {ValorTotal:C}";
+        }
+
         public void PurchaseMenu()
         {
             int opcao;
@@ -230,7 +244,7 @@ namespace Application.Classes.Purchase
                         FindPurchase();
                         break;
                     case 3:
-                        UpdatePurchase(); /*OK*/
+                        UpdatePurchase();
                         break;
                     case 4:
                         PrintPurchases();
