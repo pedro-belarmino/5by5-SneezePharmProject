@@ -12,7 +12,7 @@ namespace Application.Classes.Purchase
 {
     public class Purchase
     {
-        Writer_Reader objeto = new();
+        //Writer_Reader objeto = new();
 
         public List<Purchase> Purchases = new();
 
@@ -25,12 +25,35 @@ namespace Application.Classes.Purchase
 
         static string diretorio = "C:\\Projects\\5by5-SneezePharmProject\\Application\\Diretorios\\";
         static string file = "Purchase.data";
-        static string fullPath = Path.Combine(diretorio, file);
+        string fullPath = Path.Combine(diretorio, file);
 
         public Purchase() 
         {
-            objeto.Verificador(diretorio, file);
+            Verificador(diretorio, fullPath);
             PopularLista();
+        }
+
+        public string Verificador(string directoryPath, string fullPath)
+        {
+            try
+            {
+                if (!Directory.Exists(directoryPath))
+                {
+                    Directory.CreateDirectory(directoryPath);
+                }
+
+                if (!File.Exists(fullPath))
+                {
+                    using (StreamWriter wr = new StreamWriter(fullPath)) { }
+                }
+                return fullPath;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.StackTrace);
+                Console.WriteLine(e.Message);
+                return "";
+            }
         }
 
         public Purchase(string? id, string? idCompra, DateOnly dataCompra, string? fornecedorCNPJ, decimal valorTotal)
@@ -44,35 +67,60 @@ namespace Application.Classes.Purchase
 
         private void PopularLista()
         {
-            StreamReader sr = new(fullPath);
+            if (!File.Exists(fullPath)) return; // segurança extra
 
-            string line;
+            using StreamReader sr = new(fullPath);
+            string? line;
 
-            while ((line = sr.ReadLine()!) != null)
+            while ((line = sr.ReadLine()) != null)
             {
+                if (line.Length < 40) continue; // pula linhas inválidas/curtas
+
                 string id = line[..5].Trim();
-
-                string idCompra = line.Substring(5,5).Trim();
-
+                string idCompra = line.Substring(5, 5).Trim();
                 DateOnly dataCompra = DateOnly.ParseExact(line.Substring(10, 8), "ddMMyyyy");
-
                 string fornecedorCNPJ = line.Substring(18, 14).Trim();
-
-                decimal valorTotal = decimal.Parse(line.Substring(32, 8).Trim());
+                decimal valorTotal = decimal.Parse(line.Substring(32, 8).Trim(), CultureInfo.InvariantCulture);
 
                 Purchase purchase = new(id, idCompra, dataCompra, fornecedorCNPJ, valorTotal);
 
                 Purchases.Add(purchase);
             }
-            sr.Close();
 
-            if (Purchases.Count > 0)
-                lastId = Purchases.Select(x => int.Parse(x.Id![..5])).Max();
-            else
-            {
-                lastId = 0;
-            }
+            lastId = Purchases.Count > 0 ? Purchases.Max(x => int.Parse(x.Id!)) : 0;
         }
+
+        //private void PopularLista()
+        //{
+        //    StreamReader sr = new(fullPath);
+
+        //    string line;
+
+        //    while ((line = sr.ReadLine()!) != null)
+        //    {
+        //        string id = line[..5].Trim();
+
+        //        string idCompra = line.Substring(5,5).Trim();
+
+        //        DateOnly dataCompra = DateOnly.ParseExact(line.Substring(10, 8), "ddMMyyyy");
+
+        //        string fornecedorCNPJ = line.Substring(18, 14).Trim();
+
+        //        decimal valorTotal = decimal.Parse(line.Substring(32, 8).Trim());
+
+        //        Purchase purchase = new(id, idCompra, dataCompra, fornecedorCNPJ, valorTotal);
+
+        //        Purchases.Add(purchase);
+        //    }
+        //    sr.Close();
+
+        //    if (Purchases.Count > 0)
+        //        lastId = Purchases.Select(x => int.Parse(x.Id![..5])).Max();
+        //    else
+        //    {
+        //        lastId = 0;
+        //    }
+        //}
 
         private void SaveFile()
         {
