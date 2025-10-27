@@ -88,9 +88,9 @@ namespace Application.Classes
                         continue;
 
                     string id = line.Substring(0, 5).Trim();
-                    string dataStr = line.Substring(5, 13).Trim();
-                    string cnpj = line.Substring(13, 27).Trim();
-                    string valorTotalStr = line.Substring(27, 38).Trim();
+                    string dataStr = line.Substring(5, 8).Trim();
+                    string cnpj = line.Substring(13, 14).Trim();
+                    string valorTotalStr = line.Substring(27, 12).Trim();
 
                     DateOnly dataCompra = DateOnly.ParseExact(dataStr, "ddMMyyyy");
                     decimal valorTotal = decimal.TryParse(valorTotalStr, NumberStyles.Any,
@@ -257,7 +257,7 @@ namespace Application.Classes
                     string idFormatado = compra.Id.PadRight(5);
                     string dataFormatada = compra.DataCompra.ToString("ddMMyyyy");
                     string cnpjFormatado = compra.CnpjFornecedor.PadRight(14);
-                    string valorTotalFormatado = compra.ValorTotal.ToString("F2", CultureInfo.InvariantCulture).PadLeft(11);
+                    string valorTotalFormatado = compra.ValorTotal.ToString("F2", CultureInfo.InvariantCulture).PadLeft(12);
 
                     string linha = idFormatado + dataFormatada + cnpjFormatado + valorTotalFormatado;
                     writer.WriteLine(linha);
