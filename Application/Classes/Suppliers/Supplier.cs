@@ -1,4 +1,5 @@
 ﻿using Application.Classes.Production;
+using Application.Classes.Suppliers;
 using Application.Utils.WritersAndReaders;
 using System;
 using System.Collections.Generic;
@@ -16,7 +17,7 @@ namespace Application
         public string RazaoSocial { get; private set; }
         public string Pais { get; private set; }
         public DateOnly DataAbertura { get; private set; }
-        public DateOnly UltimoFornecimento { get; private set; }
+        public DateOnly UltimoFornecimento { get; set; }
         public DateOnly DataCadastro { get; private set; }
         public char Situacao { get; private set; }
 
@@ -49,6 +50,7 @@ namespace Application
         // Método: Popular a lista (Leiutura do arquivo) > aplicando os parâmetros do Fornecedor, e tamanhos pré-estipulados + formato de data
         public void PopularLista()
         {
+            Suppliers.Clear();
             StreamReader sr = new StreamReader(fullPath);
 
             string linha;
@@ -107,14 +109,14 @@ namespace Application
 
 
         // Método: Verificar se existe algum CNPJ com base ao parâmetro
-        private static bool TemEsteCNPJ(string cnpj)
+        public static bool TemEsteCNPJ(string cnpj)
         {
             return Suppliers.Exists(c => c.Cnpj == cnpj);
         }
 
 
         // Método: Validar o CNPJ
-        private static bool ValidarCnpj(string cnpj)
+        public static bool ValidarCnpj(string cnpj)
         {
             bool ehApenasNumero = cnpj.All(char.IsDigit);
             char[] letras = cnpj.ToCharArray();
@@ -346,14 +348,7 @@ namespace Application
         // Método: Busca o fornecedor pelo CNPJ, e retorna ele
         public static Supplier FiltrarFornecedorCNPJ(string cnpj)
         {
-            var fornecedor = Suppliers.Find(c => c.Cnpj == cnpj);
-
-            if (fornecedor is not null)
-            {
-                Console.WriteLine(fornecedor.ToString());
-                return fornecedor;
-            }
-            return null!;
+            return Suppliers.Find(c => c.Cnpj == cnpj);
         }
 
 
@@ -467,7 +462,7 @@ namespace Application
                 Console.WriteLine(" |-------------------------------------------------------------|");
                 Console.WriteLine(" |  [ 1 ] Cadastrar Fornecedor  |  [ 2 ] Atualizar Fornecedor  |");
                 Console.WriteLine(" |  [ 3 ] Listar Fornecedores   |  [ 4 ] Filtrar Fornecedor    |");
-                Console.WriteLine(" |  [ 5 ] Voltar                |                              |");
+                Console.WriteLine(" |  [ 5 ] Fornecedor Restrito   |  [ 6 ] Voltar                |");
                 Console.WriteLine(" |-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-|");
                 Console.WriteLine();
                 Console.Write("  >>> Informe o menu desejado: ");
@@ -488,25 +483,30 @@ namespace Application
                         break;
                     case 4:
                         Console.Write("Informe o CNPJ que deseja buscar: ");
-                        string cnpj = Console.ReadLine()!;
-                        FiltrarFornecedorCNPJ(cnpj);
+                        string cnpj = Console.ReadLine();
+                        var Filtro = FiltrarFornecedorCNPJ(cnpj);
                         if (FiltrarFornecedorCNPJ(cnpj) == null)
                             Console.WriteLine("\nCNPJ não encontrado!");
+                        else
+                            Console.WriteLine(Filtro);
                         break;
                     case 5:
+                        RestrictedSupplier.MenuPrincipal();
+                        break;
+                    case 6:
                         break;
                     default:
                         Console.WriteLine("Opção Inválida. Tente novamente.");
                         break;
                 }
-                if (opcao == 5)
+                if (opcao == 6)
                     break;
                 if (opcao != 1)
                 {
                     Console.Write("\nPressione Enter para prosseguir ");
                     Console.ReadLine();
                 }
-            } while (opcao != 5);
+            } while (opcao != 6);
         }
     }
 }
