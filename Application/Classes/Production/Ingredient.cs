@@ -116,8 +116,7 @@ namespace Application.Classes.Production
             DateOnly Data = DateOnly.Parse(Console.ReadLine()!);
             Console.WriteLine();
 
-            Console.Write("Insira a Data de cadastro do ingrediente DD-MM-AAAA: ");
-            DateOnly DataCadastro = DateOnly.Parse(Console.ReadLine()!);
+            DateOnly DataCadastro = DateOnly.FromDateTime(DateTime.Today);
             Console.WriteLine();
 
             char situacao;
