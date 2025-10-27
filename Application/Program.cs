@@ -16,7 +16,6 @@ internal class Program
         Sale venda = new();
         SaleItens saleItens = new();
         Customer customer = new();
-
         Supplier supplier = new();
         Purchase purchase = new();
         PurchaseItem purchaseItem = new();
@@ -49,6 +48,7 @@ internal class Program
                 switch (opcao)
                 {
                     case 1:
+                        purchaseItem.PurchaseItemMenu();
                         customer.ClientMenu();
                         break;
                     case 2:
@@ -70,6 +70,7 @@ internal class Program
                         saleItens.SaleItensMenu();
                         break;
                     case 8:
+
                         supplier.MenuPrincipal();
                         break;
                     case 9:
