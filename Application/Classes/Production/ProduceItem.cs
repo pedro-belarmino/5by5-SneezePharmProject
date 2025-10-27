@@ -107,7 +107,7 @@ namespace Application.Classes.Production
             string IdPrincipioAtivo = Console.ReadLine()!;
             while (!VerificaPrincipio(IdPrincipioAtivo))
             {
-                Console.WriteLine("Princípio ativo inválido ou inexistente, tente novamente: ");
+                Console.WriteLine("Princípio ativo inexistente ou Inativo, tente novamente: ");
                 IdPrincipioAtivo = Console.ReadLine()!;
             }
             Console.WriteLine();
@@ -163,9 +163,9 @@ namespace Application.Classes.Production
             return true;
         }
 
-        public static bool VerificaPrincipio(string Id)
+        public static bool VerificaPrincipio(string variavel)
         {
-            var ingredient = Ingredient.Ingredients.Find(x => x.Id == Id && x.situacao == 'A');
+            var ingredient = Ingredient.Ingredients.Find(x => x.Id == variavel && x.situacao == 'A');
             return ingredient != null;
         }
 
@@ -197,7 +197,7 @@ namespace Application.Classes.Production
                 switch (opcao)
                 {
                     case 1:
-                        CreateProduceItem();//moh fita
+                        CreateProduceItem(); /*OK*/
                         break;
                     case 2:
                         FindProduceItem();
@@ -217,6 +217,5 @@ namespace Application.Classes.Production
                 }
             } while (opcao != 5);
         }
-
     }
 }
