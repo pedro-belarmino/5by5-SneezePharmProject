@@ -239,7 +239,7 @@ namespace Application.Classes.Sales
 
             List<string> cdbs = new List<string>();
 
-            Console.WriteLine("   CDB   \t    Nome    \tQuantidade");
+            Console.WriteLine("   CDB   \t    Nome    \tQuantidade\n");
 
             foreach (var v in Sales)
             {
